@@ -1,14 +1,18 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.log4j.BasicConfigurator;
 import org.immregitries.clvr.*;
 import org.junit.Rule;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.KeyPair;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ClvrTest {
 
-    @Rule
-    public TemporaryFolder folder= new TemporaryFolder();
+    @TempDir
+    static Path folder;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -43,6 +47,7 @@ public class ClvrTest {
         this.cLVRService = new CLVRService(signingService,cborService,qrCodeService);
         this.fhirToCLVRPayloadUtil = new FhirConversionUtil(nuvaService);
         this.testKeyPairManager = new TestKeyPairManager(folder);
+        BasicConfigurator.configure();
     }
 
 
@@ -50,7 +55,6 @@ public class ClvrTest {
     public void nuvaLoading() {
         nuvaService.findByCvx("12");
         assertEquals(1,1);
-
     }
 
     @Test
@@ -77,7 +81,6 @@ public class ClvrTest {
             e.printStackTrace();
         }
         assertNotNull(kp1);
-        folder.delete();
         //...
     }
 
@@ -86,9 +89,8 @@ public class ClvrTest {
 
     }
 
-    @AfterAll
-    void beforeEach() {
-        folder.delete();
+    @AfterEach
+    void afterEach() {
     }
 
 

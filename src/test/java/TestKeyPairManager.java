@@ -1,3 +1,4 @@
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.*;
@@ -12,7 +13,7 @@ import java.security.spec.X509EncodedKeySpec;
 
 public class TestKeyPairManager {
 
-    public TemporaryFolder folder;
+    public Path folder;
 
 
     private final String ALGORITHM = "EC";
@@ -20,7 +21,7 @@ public class TestKeyPairManager {
     private final String PRIVATE_KEY_EXT = ".priv";
     private final String PUBLIC_KEY_EXT = ".pub";
 
-    public TestKeyPairManager(TemporaryFolder folder) {
+    public TestKeyPairManager(Path folder) {
         this.folder = folder;
     }
 
@@ -32,12 +33,10 @@ public class TestKeyPairManager {
      * @throws Exception If there are issues with file I/O, security, or key handling.
      */
     public KeyPair getOrCreateKeyPair(String fileBaseName) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeySpecException, IOException {
-        File tempFile = folder.newFile("empty.txt");
-        Path basePath = tempFile.toPath().getParent();
-        Path privateKeyPath = folder.newFile(fileBaseName + PRIVATE_KEY_EXT).toPath();
-        Path publicKeyPath = folder.newFile(fileBaseName + PUBLIC_KEY_EXT).toPath();
+        Path privateKeyPath = folder.resolve(fileBaseName + PRIVATE_KEY_EXT);
+        Path publicKeyPath = folder.resolve(fileBaseName + PUBLIC_KEY_EXT);
 
-        if (Files.exists(privateKeyPath) && Files.exists(publicKeyPath)) {
+        if (Files.exists(privateKeyPath) && Files.exists(publicKeyPath) && privateKeyPath.toFile().length() > 0) {
             System.out.println("✅ Key pair found. Loading from files: " + fileBaseName + "...");
             return loadKeyPair(privateKeyPath, publicKeyPath);
         } else {
