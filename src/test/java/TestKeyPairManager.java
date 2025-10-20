@@ -32,8 +32,10 @@ public class TestKeyPairManager {
      * @throws Exception If there are issues with file I/O, security, or key handling.
      */
     public KeyPair getOrCreateKeyPair(String fileBaseName) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeySpecException, IOException {
-        Path privateKeyPath = folder.get(fileBaseName + PRIVATE_KEY_EXT);
-        Path publicKeyPath = Paths.get(fileBaseName + PUBLIC_KEY_EXT);
+        File tempFile = folder.newFile("empty.txt");
+        Path basePath = tempFile.toPath().getParent();
+        Path privateKeyPath = folder.newFile(fileBaseName + PRIVATE_KEY_EXT).toPath();
+        Path publicKeyPath = folder.newFile(fileBaseName + PUBLIC_KEY_EXT).toPath();
 
         if (Files.exists(privateKeyPath) && Files.exists(publicKeyPath)) {
             System.out.println("✅ Key pair found. Loading from files: " + fileBaseName + "...");

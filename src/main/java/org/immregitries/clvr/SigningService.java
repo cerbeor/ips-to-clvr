@@ -6,6 +6,7 @@ import com.authlete.cbor.CBORTaggedItem;
 import com.authlete.cose.*;
 import com.authlete.cose.constants.COSEAlgorithms;
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,13 @@ public class SigningService {
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    CBORMapper cborMapper = new CBORMapper();
+    CBORMapper cborMapper;
+
+    public SigningService() {
+        this.cborMapper = new CBORMapper();
+        Security.addProvider(new BouncyCastleProvider());
+
+    }
 
 
     public byte[] createCoseSign1(byte[] cborPayload, KeyPair keyPair) throws IOException, COSEException {

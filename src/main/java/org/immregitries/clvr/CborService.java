@@ -1,9 +1,8 @@
 package org.immregitries.clvr;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper;
-import org.immregitries.clvr.model.EvCPayload;
+import org.immregitries.clvr.model.CLVRPayload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,20 +18,20 @@ public class CborService {
     /**
      * Uses Jackson specification to cborize evCPayload
      *
-     * @param evCPayload
+     * @param CLVRPayload
      * @return
      * @throws DataFormatException
      * @throws JsonProcessingException
      */
-    public byte[] toCbor(EvCPayload evCPayload) throws IOException {
-        byte[] cbor = cborMapper.writeValueAsBytes(evCPayload);
-        logger.info("CBOR byte array created successfully.\ninputObject: {}\ncbor: {}\nparsed: {}", new ObjectMapper().writeValueAsString(evCPayload), new String(cbor), cborMapper.createParser(cbor).readValueAsTree());
+    public byte[] toCbor(CLVRPayload CLVRPayload) throws IOException {
+        byte[] cbor = cborMapper.writeValueAsBytes(CLVRPayload);
+//        logger.info("CBOR byte array created successfully.\ninputObject: {}\ncbor: {}\nparsed: {}", new ObjectMapper().writeValueAsString(evCPayload), new String(cbor), cborMapper.createParser(cbor).readValueAsTree());
         return cbor;
     }
 
-    public EvCPayload undoCbor(byte[] cbor) throws IOException {
+    public CLVRPayload undoCbor(byte[] cbor) throws IOException {
 //		logger.info("parse CBOR cbor: {}\nparsed: {}", new String(cbor), cborMapper.createParser(cbor).readValueAsTree());
-        EvCPayload evCPayload = cborMapper.readValue(cbor, EvCPayload.class);
-        return evCPayload;
+        CLVRPayload CLVRPayload = cborMapper.readValue(cbor, CLVRPayload.class);
+        return CLVRPayload;
     }
 }

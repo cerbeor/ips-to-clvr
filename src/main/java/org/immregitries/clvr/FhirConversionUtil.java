@@ -4,7 +4,7 @@ import com.syadem.nuva.Vaccine;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.*;
 import org.immregitries.clvr.mapping.MappingHelper;
-import org.immregitries.clvr.model.EvCPayload;
+import org.immregitries.clvr.model.CLVRPayload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,13 +16,13 @@ import java.util.concurrent.TimeUnit;
 
 import static org.immregitries.clvr.mapping.MappingHelper.MRN_TYPE_VALUE;
 
-public class FhirToEvcUtil {
+public class FhirConversionUtil {
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-	NuvaService nuvaService;
+	NUVAService nuvaService;
 
-	public FhirToEvcUtil(NuvaService nuvaService) {
+	public FhirConversionUtil(NUVAService nuvaService) {
 		this.nuvaService = nuvaService;
 	}
 
@@ -38,8 +38,8 @@ public class FhirToEvcUtil {
 	 * @param patient      The FHIR Patient resource to calculate age from.
 	 * @return A VaccinationRecord object populated with data from the FHIR resource.
 	 */
-	public EvCPayload.VaccinationRecord toVaccinationRecord(Immunization immunization, Patient patient) {
-		EvCPayload.VaccinationRecord record = new EvCPayload.VaccinationRecord();
+	public CLVRPayload.VaccinationRecord toVaccinationRecord(Immunization immunization, Patient patient) {
+		CLVRPayload.VaccinationRecord record = new CLVRPayload.VaccinationRecord();
 
 
 		// tODO map for registry of registries
@@ -86,8 +86,8 @@ public class FhirToEvcUtil {
 	 * @param patient The FHIR Patient resource to convert.
 	 * @return An EvCPayload object populated with patient data.
 	 */
-	public EvCPayload toEvCPayload(Patient patient) {
-		EvCPayload payload = new EvCPayload();
+	public CLVRPayload toEvCPayload(Patient patient) {
+		CLVRPayload payload = new CLVRPayload();
 
 		// Set version
 		payload.setVersion("1.0.0");
@@ -95,7 +95,7 @@ public class FhirToEvcUtil {
 		// Populate name
 		if (patient.hasName()) {
 			HumanName fhirName = patient.getNameFirstRep();
-			EvCPayload.Name evcName = new EvCPayload.Name();
+			CLVRPayload.Name evcName = new CLVRPayload.Name();
 			if (fhirName.hasFamily()) {
 				evcName.setFamilyName(fhirName.getFamily());
 			}
@@ -116,7 +116,7 @@ public class FhirToEvcUtil {
 				.filter(businessIdentifier -> MRN_TYPE_VALUE.equals(businessIdentifier.getType().getCodingFirstRep().getCode()))
 				.findFirst()
 				.orElse(patient.getIdentifierFirstRep());
-			EvCPayload.PersonIdentifier evcId = new EvCPayload.PersonIdentifier();
+			CLVRPayload.PersonIdentifier evcId = new CLVRPayload.PersonIdentifier();
 			if (fhirIdentifier.hasSystem()) {
 				evcId.setObjectIdentifier(fhirIdentifier.getSystem());
 			}
@@ -158,7 +158,7 @@ public class FhirToEvcUtil {
 	 * @param ipsBundle The FHIR IPS Bundle resource to convert.
 	 * @return An EvCPayload object containing the data from the bundle.
 	 */
-	public EvCPayload toEvCPayloadFromBundle(Bundle ipsBundle) {
+	public CLVRPayload toEvCPayloadFromBundle(Bundle ipsBundle) {
 		Patient patient = null;
 		List<Immunization> immunizations = new ArrayList<>();
 
@@ -177,10 +177,10 @@ public class FhirToEvcUtil {
 		}
 
 		// Create the EvC Payload and populate patient data
-		EvCPayload payload = toEvCPayload(patient);
+		CLVRPayload payload = toEvCPayload(patient);
 
 		// Convert and add immunization records
-		List<EvCPayload.VaccinationRecord> vaccinationRecords = new ArrayList<>();
+		List<CLVRPayload.VaccinationRecord> vaccinationRecords = new ArrayList<>();
 		for (Immunization immunization : immunizations) {
 			vaccinationRecords.add(toVaccinationRecord(immunization, patient));
 		}

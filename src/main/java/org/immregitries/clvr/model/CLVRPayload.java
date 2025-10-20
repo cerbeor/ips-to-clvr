@@ -15,7 +15,7 @@ import java.util.List;
  * This class is designed to be serialized and deserialized using the Jackson library.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class EvCPayload implements Serializable {
+public class CLVRPayload implements Serializable {
 	private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	public static final String DOB = "dob";
 	public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

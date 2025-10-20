@@ -12,14 +12,14 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class NuvaService {
+public class NUVAService {
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public static final String NUVA_CVX_NOMENCLATURE = "CVX";
 
 	private NUVA nuva;
 
-	public NuvaService() throws IOException {
+	public NUVAService() throws IOException {
 		nuva = NUVA.load(SupportedLocale.English);
 	}
 

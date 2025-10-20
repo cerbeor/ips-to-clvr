@@ -12,14 +12,14 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import org.immregitries.clvr.model.EvCPayload;
+import org.immregitries.clvr.model.CLVRPayload;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class PdfService {
 
-    public static PDDocument createPdf(EvCPayload evCPayload, byte[] qrCode) throws IOException, WriterException {
+    public static PDDocument createPdf(CLVRPayload CLVRPayload, byte[] qrCode) throws IOException, WriterException {
         ObjectMapper objectMapper = new ObjectMapper();
         PDDocument document = new PDDocument();
         PDPage page = new PDPage();
@@ -28,7 +28,7 @@ public class PdfService {
         PDDocumentInformation pdDocumentInformation = new PDDocumentInformation();
         document.setDocumentInformation(pdDocumentInformation);
         pdDocumentInformation.setCreator("IIS SANDBOX");
-        pdDocumentInformation.setCustomMetadataValue("evc", objectMapper.writeValueAsString(evCPayload));
+        pdDocumentInformation.setCustomMetadataValue("evc", objectMapper.writeValueAsString(CLVRPayload));
         PDPageContentStream contentStream = new PDPageContentStream(document, page);
 
         PDImageXObject qrCodeImageObject;
@@ -50,11 +50,11 @@ public class PdfService {
         contentStream.showText("IIS Sandbox Test IPS to EVC");
         contentStream.newLine();
         contentStream.showText("Patient Information for " +
-                evCPayload.getName().getFamilyName() +
+                CLVRPayload.getName().getFamilyName() +
                 ", " +
-                evCPayload.getName().getGivenName());
+                CLVRPayload.getName().getGivenName());
         contentStream.newLine();
-        contentStream.showText("Identifier: " + evCPayload.getPersonIdentifier().getObjectIdentifier() + " " + evCPayload.getPersonIdentifier().getId());
+        contentStream.showText("Identifier: " + CLVRPayload.getPersonIdentifier().getObjectIdentifier() + " " + CLVRPayload.getPersonIdentifier().getId());
         contentStream.newLine();
         contentStream.showText(new String(qrCode));
 //		contentStream.showText(evCPayload.getName().getGivenName());
