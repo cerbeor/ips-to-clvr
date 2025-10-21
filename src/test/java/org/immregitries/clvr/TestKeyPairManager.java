@@ -1,10 +1,8 @@
-import org.junit.jupiter.api.io.TempDir;
-import org.junit.rules.TemporaryFolder;
+package org.immregitries.clvr;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.InvalidKeySpecException;

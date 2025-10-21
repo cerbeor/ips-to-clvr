@@ -14,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.*;
 import java.security.interfaces.ECPrivateKey;
+import java.util.Arrays;
 import java.util.Collections;
 
 public class SigningService {
@@ -25,7 +26,6 @@ public class SigningService {
     public SigningService() {
         this.cborMapper = new CBORMapper();
         Security.addProvider(new BouncyCastleProvider());
-
     }
 
 
@@ -63,7 +63,6 @@ public class SigningService {
         CBORTaggedItem taggedItem = new CBORTaggedItem(18,sign1);
 
         byte[] encode =  taggedItem.encode();
-        cborFromCoseSign1(encode, keyPair.getPublic());
         return encode;
     }
 
@@ -81,7 +80,7 @@ public class SigningService {
             classCastException.printStackTrace();
             coseSign1 = COSESign1.build(item);
         }
-        logger.info("DECODED \nCborItem: {}\n prettify {}\n base64 {}\n", cborMapper.createParser(item.encode()).readValueAsTree(), item.prettify(), item.encodeToBase64Url());
+//        logger.info("DECODED \nCborItem: {}\n prettify {}\n base64 {}\n", cborMapper.createParser(item.encode()).readValueAsTree(), item.prettify(), item.encodeToBase64Url());
 
         /*
          * Verify signature
@@ -103,13 +102,13 @@ public class SigningService {
 //			logger.info("PARSED \nOBJECT: {}\n", object);
 //			object = cborParser.next();
 //		}
-        logger.info("coseprettyfy {}", coseSign1.getPayload().prettify());
+//        logger.info("coseprettify {}", coseSign1.getPayload().prettify());
         byte[] bytes = coseSign1.getPayload().encode();
         /*
          * Removing bytes added through Cose to only get the payload
          */
-        return bytes;
-//		return Arrays.copyOfRange(bytes,2, bytes.length);
+//        return bytes;
+		return Arrays.copyOfRange(bytes,2, bytes.length);
     }
 
 
