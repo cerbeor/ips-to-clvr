@@ -1,6 +1,8 @@
 package org.immregitries.clvr;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
 import com.syadem.nuva.Vaccine;
 import org.apache.log4j.BasicConfigurator;
 import org.junit.jupiter.api.AfterEach;
@@ -13,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.KeyPair;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -79,7 +83,14 @@ public class ClvrTest {
             logger.info("\n--- Running again to demonstrate loading from file ---\n");
             // Second run: The key files now exist, so it will load them.
             kp2 = testKeyPairManager.getOrCreateKeyPair(keyFileBaseName);
-            logger.info("Public Key Format: " + kp2.getPublic().getFormat());
+            ECPublicKey ecPublicKey = (ECPublicKey) kp2.getPublic();
+            ECKey jwk = new ECKey.Builder(Curve.P_256, (ECPublicKey) kp2.getPrivate())
+//                    .keyID(UUID.randomUUID().toString()) // Optional: Assign a Key ID
+                    .build();
+
+            // 3. Print the public EC JWK parameters
+            logger.info("Public Key : " + jwk.toPublicJWK().toJSONString());
+            logger.info("Private Key : " + jwk.toJSONString());
         } catch (Exception e) {
             e.printStackTrace();
         }

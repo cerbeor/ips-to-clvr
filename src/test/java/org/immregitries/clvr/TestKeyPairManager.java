@@ -1,5 +1,8 @@
 package org.immregitries.clvr;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,6 +13,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 public class TestKeyPairManager {
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public Path folder;
 
@@ -35,13 +39,13 @@ public class TestKeyPairManager {
         Path publicKeyPath = folder.resolve(fileBaseName + PUBLIC_KEY_EXT);
 
         if (Files.exists(privateKeyPath) && Files.exists(publicKeyPath) && privateKeyPath.toFile().length() > 0) {
-            System.out.println("✅ Key pair found. Loading from files: " + fileBaseName + "...");
+            logger.info("✅ Key pair found. Loading from files: " + fileBaseName + "...");
             return loadKeyPair(privateKeyPath, publicKeyPath);
         } else {
-            System.out.println("⚠️ Key pair not found. Generating new EC key pair: " + fileBaseName + "...");
+            logger.info("⚠️ Key pair not found. Generating new EC key pair: " + fileBaseName + "...");
             KeyPair keyPair = generateKeyPair();
             saveKeyPair(keyPair, privateKeyPath, publicKeyPath);
-            System.out.println("✨ New key pair generated and saved successfully.");
+            logger.info("✨ New key pair generated and saved successfully.");
             return keyPair;
         }
     }
