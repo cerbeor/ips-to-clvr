@@ -12,7 +12,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hapi.fhir.version>8.0.0</hapi.fhir.version>
+        <hapi.version>8.0.0</hapi.version>
     </properties>
 
     <dependencies>
@@ -78,19 +78,19 @@
 <!--        <dependency>-->
 <!--            <groupId>ca.uhn.hapi.fhir</groupId>-->
 <!--            <artifactId>hapi-fhir</artifactId>-->
-<!--            <version>${hapi.fhir.version}</version>-->
+<!--            <version>${hapi.version}</version>-->
 <!--        </dependency>-->
 
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-converter</artifactId>
-            <version>${hapi.fhir.version}</version>
+            <version>${hapi.version}</version>
         </dependency>
 
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-base</artifactId>
-            <version>${hapi.fhir.version}</version>
+            <version>${hapi.version}</version>
         </dependency>
 
         <dependency>
@@ -122,6 +122,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>2.0.16</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-structures-r4</artifactId>
+            <version>${hapi.version}</version>
         </dependency>
 
     </dependencies>

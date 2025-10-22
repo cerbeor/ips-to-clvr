@@ -161,7 +161,7 @@ public class FhirConversionUtil {
 	 * @param ipsBundle The FHIR IPS Bundle resource to convert.
 	 * @return An EvCPayload object containing the data from the bundle.
 	 */
-	public CLVRPayload toEvCPayloadFromBundle(Bundle ipsBundle) {
+	public CLVRPayload toCLVRPayloadFromBundle(Bundle ipsBundle) {
 		Patient patient = null;
 		List<Immunization> immunizations = new ArrayList<>();
 

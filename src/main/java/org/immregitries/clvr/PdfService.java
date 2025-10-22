@@ -57,7 +57,7 @@ public class PdfService {
         contentStream.showText("Identifier: " + CLVRPayload.getPersonIdentifier().getObjectIdentifier() + " " + CLVRPayload.getPersonIdentifier().getId());
         contentStream.newLine();
         contentStream.showText(new String(qrCode));
-//		contentStream.showText(evCPayload.getName().getGivenName());
+//		contentStream.showText(clvrPayload.getName().getGivenName());
         contentStream.endText();
         contentStream.close();
 

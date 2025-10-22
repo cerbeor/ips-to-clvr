@@ -17,7 +17,7 @@ public class CborService {
 
 
     /**
-     * Uses Jackson specification to cborize evCPayload
+     * Uses Jackson specification to cborize clvrPayload
      *
      * @param clvrPayload
      * @return
@@ -27,7 +27,7 @@ public class CborService {
     public byte[] toCbor(CLVRPayload clvrPayload) throws IOException {
         CLVRToken clvrToken= new CLVRToken(clvrPayload);
         byte[] cbor = cborMapper.writeValueAsBytes(clvrToken);
-//        logger.info("CBOR byte array created successfully.\ninputObject: {}\ncbor: {}\nparsed: {}", new ObjectMapper().writeValueAsString(evCPayload), new String(cbor), cborMapper.createParser(cbor).readValueAsTree());
+//        logger.info("CBOR byte array created successfully.\ninputObject: {}\ncbor: {}\nparsed: {}", new ObjectMapper().writeValueAsString(clvrPayload), new String(cbor), cborMapper.createParser(cbor).readValueAsTree());
         return cbor;
     }
 

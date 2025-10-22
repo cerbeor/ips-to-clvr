@@ -21,11 +21,22 @@ class QrCodeServiceTest extends BaseCLVRTest {
     public void processSampleEnd() throws COSEException, DataFormatException, IOException {
         String qr = TEST_SAMPLE_QR;
         String sample = TEST_SAMPLE;
-        byte[] cbor = cborService.toCbor(objectMapper.readValue(sample,CLVRPayload.class));
-        logger.info("Expected length {}, expected CBOR {}",cbor.length, new String(cbor));
+        extracted(qr, sample);
+    }
+
+    /**
+     * Verifying qrcode parsing leads to the right payload
+     * @param qr
+     * @param originalPayload
+     * @throws COSEException
+     * @throws IOException
+     * @throws DataFormatException
+     */
+    private void extracted(String qr, String originalPayload) throws COSEException, IOException, DataFormatException {
+        //        byte[] cbor = cborService.toCbor(objectMapper.readValue(sample,CLVRPayload.class));
+//        logger.info("Expected length {}, expected CBOR {}",cbor.length, new String(cbor));
         CLVRPayload payload = cLVRService.decodeFullQrCode(qr.getBytes(), null);
-        assertEquals(objectMapper.readValue(TEST_SAMPLE, CLVRPayload.class).toString(),payload.toString());
-//        logger.info("NUVA Vaccine for code found {}", vaccine.get());
+        assertEquals(objectMapper.readValue(originalPayload, CLVRPayload.class).toString(),payload.toString());
     }
 
 

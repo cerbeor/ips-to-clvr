@@ -38,19 +38,14 @@ public class CLVRService {
 
 
 	public CLVRPayload decodeFullQrCode(byte[] qrcode, KeyPair keyPair) throws COSEException, IOException, DataFormatException {
-		logger.info("A0 qrcode {}", new String(qrcode));
 		byte[] compressed = qrCodeService.decodeQrCode(qrcode);
-		logger.info("A1 compressed {}", new String(compressed));
 		byte[] cose = CompressionUtil.inflate(compressed, NOWRAP);
-		logger.info("A2 cose {}", new String(cose));
 		PublicKey aPublic = null;
 		if (keyPair != null) {
 			aPublic = keyPair.getPublic();
 		}
 		byte[] cbor = signingService.cborFromCoseSign1(cose, aPublic);
-		logger.info("A3 cbor {}", new String(cbor));
 		CLVRPayload CLVRPayload = cborService.undoCbor(cbor);
-		logger.info("A4 evc {}", CLVRPayload);
 		return CLVRPayload;
 	}
 
