@@ -6,16 +6,28 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.security.*;
-import java.security.spec.InvalidKeySpecException;
+import java.util.zip.DataFormatException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class QrCodeServiceTest extends ClvrTest {
+class QrCodeServiceTest extends BaseCLVRTest {
 
 
     public QrCodeServiceTest() throws IOException {
         super();
     }
+
+    @Test
+    public void processSampleEnd() throws COSEException, DataFormatException, IOException {
+        String qr = TEST_SAMPLE_QR;
+        String sample = TEST_SAMPLE;
+        byte[] cbor = cborService.toCbor(objectMapper.readValue(sample,CLVRPayload.class));
+        logger.info("Expected length {}, expected CBOR {}",cbor.length, new String(cbor));
+        CLVRPayload payload = cLVRService.decodeFullQrCode(qr.getBytes(), null);
+        assertEquals(objectMapper.readValue(TEST_SAMPLE, CLVRPayload.class).toString(),payload.toString());
+//        logger.info("NUVA Vaccine for code found {}", vaccine.get());
+    }
+
 
     @Test
     void decodeQrCode() throws Exception {

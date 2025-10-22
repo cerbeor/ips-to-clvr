@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.KeyPair;
-import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.util.Optional;
 import java.util.zip.DataFormatException;
@@ -26,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
-public class ClvrTest {
+public class BaseCLVRTest {
     public static final boolean NOWRAP = false;
 
     public static final String TEST_SAMPLE_QR = "6BFOXN*TS0BI$ZDZRH AENUKSIL3W8 G2RTC RIQJDA+Q910OJL46KBG3:ZH-O9UVPQRHIY1VS1NQ1 WUXOE9Y431T3$KOGVV5U+%9SI6%RU/TUPRAAUIWVH$R1+ZE6%P/T1RM2JOJV 4G.K115WT0PG0QB00.I:S9M2JJHHIOI.CBPHNGG2M53%H2W58.0NW58:D9N/IR6H.14A$O.4VF679WCBKNK%O:OR.1UUHRKZ4N*1J4N.3V$/K166ZRLYKN% NL8SI01$UI*5GY14LUI.RNUWC01JZMQP-1K13J+6CBB/S1BCCLVA";
@@ -56,7 +55,7 @@ public class ClvrTest {
     protected ObjectMapper objectMapper = new ObjectMapper();
 
 
-    public ClvrTest() throws IOException {
+    public BaseCLVRTest() throws IOException {
         this.nuvaService = new NUVAService();
         this.cborService = new CborService();
         this.signingService = new SigningService();
@@ -76,16 +75,6 @@ public class ClvrTest {
 //        logger.info("NUVA Vaccine for code found {}", vaccine.get());
     }
 
-    @Test
-    public void processSampleEnd() throws COSEException, DataFormatException, IOException {
-        String qr = TEST_SAMPLE_QR;
-        String sample = TEST_SAMPLE;
-        byte[] cbor = cborService.toCbor(objectMapper.readValue(sample,CLVRPayload.class));
-        logger.info("Expected length {}, expected CBOR {}",cbor.length, new String(cbor));
-        CLVRPayload payload = cLVRService.decodeFullQrCode(qr.getBytes(), null);
-        logger.info("Payload {}", payload);
-//        logger.info("NUVA Vaccine for code found {}", vaccine.get());
-    }
 
     @Test
     public void keyPairAvailable() {

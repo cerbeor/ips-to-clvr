@@ -12,7 +12,7 @@ import java.security.spec.InvalidKeySpecException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SigningServiceTest extends ClvrTest {
+class SigningServiceTest extends BaseCLVRTest {
 
     public SigningServiceTest() throws IOException {
         super();
