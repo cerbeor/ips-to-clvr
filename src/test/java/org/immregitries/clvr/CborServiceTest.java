@@ -18,6 +18,12 @@ class CborServiceTest extends ClvrTest {
         super();
     }
 
+//    @Test
+//    void toCborConsistence() throws JsonProcessingException {
+//        String test_sample = TEST_SAMPLE;
+//        testCborConsistence(test_sample);
+//    }
+
     @Test
     void toCborConsistence() throws JsonProcessingException {
         String test_sample = TEST_SAMPLE;

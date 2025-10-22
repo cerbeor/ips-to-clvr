@@ -2,6 +2,7 @@ package org.immregitries.clvr;
 
 import com.authlete.cbor.CBORDecoder;
 import com.authlete.cbor.CBORItem;
+import com.authlete.cbor.CBORParser;
 import com.authlete.cbor.CBORTaggedItem;
 import com.authlete.cose.*;
 import com.authlete.cose.constants.COSEAlgorithms;
@@ -58,7 +59,6 @@ public class SigningService {
                 .unprotectedHeader(unprotectedHeader)
                 .payload(cborPayload)
                 .signature(signature)
-
                 .build();
         CBORTaggedItem taggedItem = new CBORTaggedItem(18,sign1);
 
@@ -96,13 +96,15 @@ public class SigningService {
             }
         }
 
-//		CBORParser cborParser = new CBORParser(encode);
-//		Object object = cborParser.next();
-//		while (object != null) {
-//			logger.info("PARSED \nOBJECT: {}\n", object);
-//			object = cborParser.next();
-//		}
-//        logger.info("coseprettify {}", coseSign1.getPayload().prettify());
+		CBORParser cborParser = new CBORParser(encode);
+		Object object = cborParser.next();
+		while (object != null) {
+			logger.info("PARSED \nOBJECT: {}\n", object);
+			object = cborParser.next();
+		}
+        logger.info("cose payload prettify {}", coseSign1.getPayload().prettify());
+        logger.info("cose payload base64 {}", coseSign1.getPayload().encodeToHex());
+        logger.info("cose payload encode {}", new String(coseSign1.getPayload().encode()));
         byte[] bytes = coseSign1.getPayload().encode();
         /*
          * Removing bytes added through Cose to only get the payload

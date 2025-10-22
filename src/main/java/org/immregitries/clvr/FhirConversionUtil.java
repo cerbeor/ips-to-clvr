@@ -5,6 +5,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.*;
 import org.immregitries.clvr.mapping.MappingHelper;
 import org.immregitries.clvr.model.CLVRPayload;
+import org.immregitries.clvr.model.Name;
+import org.immregitries.clvr.model.PersonIdentifier;
+import org.immregitries.clvr.model.VaccinationRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +41,8 @@ public class FhirConversionUtil {
 	 * @param patient      The FHIR Patient resource to calculate age from.
 	 * @return A VaccinationRecord object populated with data from the FHIR resource.
 	 */
-	public CLVRPayload.VaccinationRecord toVaccinationRecord(Immunization immunization, Patient patient) {
-		CLVRPayload.VaccinationRecord record = new CLVRPayload.VaccinationRecord();
+	public VaccinationRecord toVaccinationRecord(Immunization immunization, Patient patient) {
+		VaccinationRecord record = new VaccinationRecord();
 
 
 		// tODO map for registry of registries
@@ -95,7 +98,7 @@ public class FhirConversionUtil {
 		// Populate name
 		if (patient.hasName()) {
 			HumanName fhirName = patient.getNameFirstRep();
-			CLVRPayload.Name evcName = new CLVRPayload.Name();
+			Name evcName = new Name();
 			if (fhirName.hasFamily()) {
 				evcName.setFamilyName(fhirName.getFamily());
 			}
@@ -116,7 +119,7 @@ public class FhirConversionUtil {
 				.filter(businessIdentifier -> MRN_TYPE_VALUE.equals(businessIdentifier.getType().getCodingFirstRep().getCode()))
 				.findFirst()
 				.orElse(patient.getIdentifierFirstRep());
-			CLVRPayload.PersonIdentifier evcId = new CLVRPayload.PersonIdentifier();
+			PersonIdentifier evcId = new PersonIdentifier();
 			if (fhirIdentifier.hasSystem()) {
 				evcId.setObjectIdentifier(fhirIdentifier.getSystem());
 			}
@@ -180,7 +183,7 @@ public class FhirConversionUtil {
 		CLVRPayload payload = toEvCPayload(patient);
 
 		// Convert and add immunization records
-		List<CLVRPayload.VaccinationRecord> vaccinationRecords = new ArrayList<>();
+		List<VaccinationRecord> vaccinationRecords = new ArrayList<>();
 		for (Immunization immunization : immunizations) {
 			vaccinationRecords.add(toVaccinationRecord(immunization, patient));
 		}

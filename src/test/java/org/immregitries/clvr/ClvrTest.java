@@ -1,10 +1,12 @@
 package org.immregitries.clvr;
 
+import com.authlete.cose.COSEException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.syadem.nuva.Vaccine;
 import org.apache.log4j.BasicConfigurator;
+import org.immregitries.clvr.model.CLVRPayload;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,7 @@ import java.security.KeyPair;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.util.Optional;
+import java.util.zip.DataFormatException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -26,11 +29,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class ClvrTest {
     public static final boolean NOWRAP = false;
 
+    public static final String TEST_SAMPLE_QR = "6BFOXN*TS0BI$ZDZRH AENUKSIL3W8 G2RTC RIQJDA+Q910OJL46KBG3:ZH-O9UVPQRHIY1VS1NQ1 WUXOE9Y431T3$KOGVV5U+%9SI6%RU/TUPRAAUIWVH$R1+ZE6%P/T1RM2JOJV 4G.K115WT0PG0QB00.I:S9M2JJHHIOI.CBPHNGG2M53%H2W58.0NW58:D9N/IR6H.14A$O.4VF679WCBKNK%O:OR.1UUHRKZ4N*1J4N.3V$/K166ZRLYKN% NL8SI01$UI*5GY14LUI.RNUWC01JZMQP-1K13J+6CBB/S1BCCLVA";
     public static final String TEST_SAMPLE = "{\"ver\": \"1.0.0\", \"nam\": {\"fnt\": \"DOË\"," +
             " \"gnt\": \"John\"}, \"dob\": \"2017-07-19\", \"v\": " +
             "[{\"reg\": \"FRA\", \"rep\": 36, \"i\": 1245, \"a\": 1386," +
             " \"mp\": 29}, {\"reg\": \"FRA\", " +
             "\"rep\": 36, \"i\": 127, \"a\": 1688, \"mp\": 644}]}";
+
     public static final String TEST_KEY_FILE_NAME = "testKey";
 
     @TempDir
@@ -68,6 +73,17 @@ public class ClvrTest {
         Optional<Vaccine> vaccine = nuvaService.findByCvx("20");
         assertEquals(true,vaccine.isPresent());
         assertEquals(602,vaccine.get().getCode());
+//        logger.info("NUVA Vaccine for code found {}", vaccine.get());
+    }
+
+    @Test
+    public void processSampleEnd() throws COSEException, DataFormatException, IOException {
+        String qr = TEST_SAMPLE_QR;
+        String sample = TEST_SAMPLE;
+        byte[] cbor = cborService.toCbor(objectMapper.readValue(sample,CLVRPayload.class));
+        logger.info("Expected length {}, expected CBOR {}",cbor.length, new String(cbor));
+        CLVRPayload payload = cLVRService.decodeFullQrCode(qr.getBytes(), null);
+        logger.info("Payload {}", payload);
 //        logger.info("NUVA Vaccine for code found {}", vaccine.get());
     }
 
