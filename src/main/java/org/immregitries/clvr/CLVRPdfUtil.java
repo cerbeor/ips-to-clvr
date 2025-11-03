@@ -17,9 +17,9 @@ import org.immregitries.clvr.model.CLVRPayload;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-public class PdfService {
+public class CLVRPdfUtil {
 
-    public static PDDocument createPdf(CLVRPayload CLVRPayload, byte[] qrCode) throws IOException, WriterException {
+    public static PDDocument createPdf(CLVRPayload CLVRPayload, byte[] qrCode, String creator) throws IOException, WriterException {
         ObjectMapper objectMapper = new ObjectMapper();
         PDDocument document = new PDDocument();
         PDPage page = new PDPage();
@@ -27,7 +27,7 @@ public class PdfService {
 
         PDDocumentInformation pdDocumentInformation = new PDDocumentInformation();
         document.setDocumentInformation(pdDocumentInformation);
-        pdDocumentInformation.setCreator("IIS SANDBOX");
+        pdDocumentInformation.setCreator(creator);
         pdDocumentInformation.setCustomMetadataValue("evc", objectMapper.writeValueAsString(CLVRPayload));
         PDPageContentStream contentStream = new PDPageContentStream(document, page);
 
@@ -47,7 +47,7 @@ public class PdfService {
         contentStream.beginText();
         contentStream.setLeading(14.5f);
         contentStream.newLineAtOffset(25, 700);
-        contentStream.showText("IIS Sandbox Test IPS to EVC");
+        contentStream.showText(creator + "test IPS to EVC");
         contentStream.newLine();
         contentStream.showText("Patient Information for " +
                 CLVRPayload.getName().getFamilyName() +

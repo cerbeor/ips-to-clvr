@@ -4,6 +4,8 @@ import com.authlete.cose.COSEException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
+import com.syadem.nuva.NUVA;
+import com.syadem.nuva.SupportedLocale;
 import com.syadem.nuva.Vaccine;
 import org.apache.log4j.BasicConfigurator;
 import org.immregitries.clvr.model.CLVRPayload;
@@ -56,7 +58,8 @@ public class BaseCLVRTest {
 
 
     public BaseCLVRTest() throws IOException {
-        this.nuvaService = new NUVAService();
+        NUVA nuva = NUVA.load(SupportedLocale.English);
+        this.nuvaService = new NUVAService(nuva);
         this.cborService = new CborService();
         this.signingService = new SigningService();
         this.qrCodeService = new QrCodeService();

@@ -19,7 +19,7 @@ public class NUVAService {
 
 	private NUVA nuva;
 
-	public NUVAService() throws IOException {
+	public NUVAService(NUVA nuva) throws IOException {
 		nuva = NUVA.load(SupportedLocale.English);
 	}
 
