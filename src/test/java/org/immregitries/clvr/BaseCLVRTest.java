@@ -7,7 +7,7 @@ import com.nimbusds.jose.jwk.ECKey;
 import com.syadem.nuva.NUVA;
 import com.syadem.nuva.SupportedLocale;
 import com.syadem.nuva.Vaccine;
-import org.apache.log4j.BasicConfigurator;
+//import org.apache.log4j.BasicConfigurator;
 import org.immregitries.clvr.model.CLVRPayload;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,7 +66,7 @@ public class BaseCLVRTest {
         this.cLVRService = new CLVRService(signingService,cborService,qrCodeService);
         this.fhirToCLVRPayloadUtil = new FhirConversionUtil(nuvaService);
         this.testKeyPairManager = new TestKeyPairManager(folder);
-        BasicConfigurator.configure();
+//        BasicConfigurator.configure();
     }
 
 
@@ -92,7 +92,7 @@ public class BaseCLVRTest {
             // Second run: The key files now exist, so it will load them.
             kp2 = testKeyPairManager.getOrCreateKeyPair(keyFileBaseName);
             ECPublicKey ecPublicKey = (ECPublicKey) kp2.getPublic();
-            ECKey jwk = new ECKey.Builder(Curve.P_256, (ECPublicKey) kp2.getPrivate())
+            ECKey jwk = new ECKey.Builder(Curve.P_256, (ECPublicKey) kp2.getPublic())
 //                    .keyID(UUID.randomUUID().toString()) // Optional: Assign a Key ID
                     .build();
 

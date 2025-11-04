@@ -17,10 +17,10 @@ public class NUVAService {
 
 	public static final String NUVA_CVX_NOMENCLATURE = "CVX";
 
-	private NUVA nuva;
+	private final NUVA nuva;
 
 	public NUVAService(NUVA nuva) throws IOException {
-		nuva = NUVA.load(SupportedLocale.English);
+		this.nuva = nuva;
 	}
 
 	public Optional<Vaccine> findByCvx(String cvxCode) {
