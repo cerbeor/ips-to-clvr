@@ -27,7 +27,7 @@ class CLVRPdfUtilTest {
     void createPdf() throws IOException, WriterException {
          CLVRPayload payload =  objectMapper.readValue(TEST_SAMPLE, CLVRPayload.class);
         PDDocument pdDocument = clvrPdfService.createPdf(payload, TEST_SAMPLE_QR.getBytes(), "Unit test");
-        CLVRPdfService.printPdf(pdDocument,"test-zbeul-9999");
+        CLVRPdfService.printPdf(pdDocument,"unit-test-pdf");
     }
 
     @Test
