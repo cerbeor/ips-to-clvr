@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -64,11 +65,12 @@ public class CLVRPdfUtil {
         return document;
     }
 
-    protected void printPdf(
+    protected static void printPdf(
             PDDocument pdDocument,
             String name
     ) throws IOException {
-		pdDocument.save(name + ".pdf");
+        String fileName = StringUtils.substringBefore(name,".");
+		pdDocument.save(fileName + ".pdf");
         pdDocument.close();
     }
 
