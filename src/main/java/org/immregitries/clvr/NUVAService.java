@@ -36,4 +36,8 @@ public class NUVAService {
 			return cvx.isPresent();
 		}).findFirst();
 	}
+
+	public NUVA getNuva() {
+		return nuva;
+	}
 }

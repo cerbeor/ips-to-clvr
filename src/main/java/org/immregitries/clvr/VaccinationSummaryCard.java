@@ -1,33 +1,50 @@
 package org.immregitries.clvr;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.syadem.nuva.Vaccine;
 import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import org.immregitries.clvr.model.CLVRPayload;
+import org.immregitries.clvr.model.VaccinationRecord;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 
 public class VaccinationSummaryCard {
 
-    public static void main(String[] args) throws Exception {
-        new VaccinationSummaryCard().generatePDF("Vaccination_Summary.pdf");
-        System.out.println("✅ Vaccination summary card generated: Vaccination_Summary.pdf");
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+    private NUVAService nuvaService;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    public VaccinationSummaryCard(NUVAService nuvaService) {
+        this.nuvaService = nuvaService;
     }
 
-    public void generatePDF(String outputFileName) throws IOException, WriterException {
+    public PDDocument generatePDF(CLVRPayload payload, byte[] qrCode, String creator) throws IOException, WriterException {
         // Create a new document
         PDDocument document = new PDDocument();
+
+        PDDocumentInformation pdDocumentInformation = new PDDocumentInformation();
+        document.setDocumentInformation(pdDocumentInformation);
+        pdDocumentInformation.setCreator(creator);
+        pdDocumentInformation.setCustomMetadataValue("evc", objectMapper.writeValueAsString(payload));
         PDPage page = new PDPage(PDRectangle.A4);
         document.addPage(page);
 
@@ -49,11 +66,12 @@ public class VaccinationSummaryCard {
         content.beginText();
         content.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
         content.newLineAtOffset(margin, yStart);
-        content.showText("Name: John Doe");
+        content.showText("Name: " + payload.getName().getGivenName() + " " + payload.getName().getFamilyName());
         content.newLineAtOffset(0, -15);
-        content.showText("Date of Birth: 1990-04-23");
-        content.newLineAtOffset(0, -15);
-        content.showText("Patient ID: 12345678");
+        content.showText("Date of Birth: " + simpleDateFormat.format(payload.getDateOfBirth()));
+//        content.newLineAtOffset(0, -15);
+//        if (payload.getPersonIdentifier().)
+//        content.showText("Patient ID: " + payload.getPersonIdentifier());
         content.endText();
 
         yStart -= 70;
@@ -66,46 +84,36 @@ public class VaccinationSummaryCard {
         content.newLineAtOffset(150, 0);
         content.showText("Date");
         content.newLineAtOffset(150, 0);
-        content.showText("Dose");
+        content.showText("Country");
         content.endText();
 
         yStart -= 20;
 
-        // Example Vaccination Data
-        List<String[]> vaccinations = Arrays.asList(
-                new String[]{"COVID-19", "2021-03-12", "1st Dose"},
-                new String[]{"COVID-19", "2021-04-09", "2nd Dose"},
-                new String[]{"Influenza", "2024-10-10", "Annual"},
-                new String[]{"Tetanus", "2023-07-15", "Booster"}
-        );
-
         // Draw table rows
         content.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
-        for (String[] record : vaccinations) {
+        for (VaccinationRecord record : payload.getVaccinationRecords()) {
+            Vaccine vaccine = nuvaService.getNuva().getQueries().lookupVaccineByCode(record.getNuvaCode());
             content.beginText();
             content.newLineAtOffset(margin, yStart);
-            content.showText(record[0]);
+            content.showText(vaccine.getName());
             content.newLineAtOffset(150, 0);
-            content.showText(record[1]);
+            Date adminDate = new Date(TimeUnit.DAYS.toMillis(record.getAgeInDays()) + payload.getDateOfBirth().getTime());
+            content.showText(simpleDateFormat.format(adminDate));
             content.newLineAtOffset(150, 0);
-            content.showText(record[2]);
+            content.showText(record.getRegistryCode());
             content.endText();
             yStart -= 20;
         }
 
-        // Generate QR Code
-        String qrData = "PatientID:12345678; Name:John Doe; Last Updated:" + LocalDate.now();
-        BufferedImage qrImage = generateQRCodeImage(qrData, 150, 150);
-
-        // Save QR to temporary file
-        File qrTemp = new File("qr_temp.png");
-        ImageIO.write(qrImage, "png", qrTemp);
-
-        // Add QR code to PDF (bottom center)
-        PDImageXObject pdImage = PDImageXObject.createFromFileByContent(qrTemp, document);
-        float qrX = (page.getMediaBox().getWidth() - 150) / 2;
-        float qrY = 50;
-        content.drawImage(pdImage, qrX, qrY, 150, 150);
+        PDImageXObject qrCodeImageObject;
+        {
+            int width = 300; // Desired QR code width
+            int height = 300; // Desired QR code height
+            BitMatrix bitMatrix = CompressionUtil.qrCodeBitMatrix(new String(qrCode), width, height);
+            BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
+            qrCodeImageObject = LosslessFactory.createFromImage(document, bufferedImage);
+        }
+        content.drawImage(qrCodeImageObject, 150, 150);
 
         // Footer text
         content.beginText();
@@ -116,11 +124,7 @@ public class VaccinationSummaryCard {
 
         // Close everything
         content.close();
-        document.save(outputFileName);
-        document.close();
-
-        // Cleanup
-        qrTemp.delete();
+        return document;
     }
 
     // Helper: Generate QR code as BufferedImage

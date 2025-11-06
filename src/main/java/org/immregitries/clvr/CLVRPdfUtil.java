@@ -20,7 +20,7 @@ import java.io.IOException;
 
 public class CLVRPdfUtil {
 
-    public static PDDocument createPdf(CLVRPayload CLVRPayload, byte[] qrCode, String creator) throws IOException, WriterException {
+    public static PDDocument createPdf(CLVRPayload payload, byte[] qrCode, String creator) throws IOException, WriterException {
         ObjectMapper objectMapper = new ObjectMapper();
         PDDocument document = new PDDocument();
         PDPage page = new PDPage();
@@ -29,7 +29,7 @@ public class CLVRPdfUtil {
         PDDocumentInformation pdDocumentInformation = new PDDocumentInformation();
         document.setDocumentInformation(pdDocumentInformation);
         pdDocumentInformation.setCreator(creator);
-        pdDocumentInformation.setCustomMetadataValue("evc", objectMapper.writeValueAsString(CLVRPayload));
+        pdDocumentInformation.setCustomMetadataValue("evc", objectMapper.writeValueAsString(payload));
         PDPageContentStream contentStream = new PDPageContentStream(document, page);
 
         PDImageXObject qrCodeImageObject;
@@ -51,11 +51,11 @@ public class CLVRPdfUtil {
         contentStream.showText(creator + "test IPS to EVC");
         contentStream.newLine();
         contentStream.showText("Patient Information for " +
-                CLVRPayload.getName().getFamilyName() +
+                payload.getName().getFamilyName() +
                 ", " +
-                CLVRPayload.getName().getGivenName());
+                payload.getName().getGivenName());
         contentStream.newLine();
-        contentStream.showText("Identifier: " + CLVRPayload.getPersonIdentifier().getObjectIdentifier() + " " + CLVRPayload.getPersonIdentifier().getId());
+        contentStream.showText("Identifier: " + payload.getPersonIdentifier().getObjectIdentifier() + " " + payload.getPersonIdentifier().getId());
         contentStream.newLine();
         contentStream.showText(new String(qrCode));
 //		contentStream.showText(clvrPayload.getName().getGivenName());
