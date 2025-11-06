@@ -1,43 +1,45 @@
 package org.immregitries.clvr;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
 import com.syadem.nuva.Vaccine;
-import org.apache.pdfbox.pdmodel.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-
-import com.google.zxing.*;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
-import com.google.zxing.common.BitMatrix;
 import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.VaccinationRecord;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import javax.imageio.ImageIO;
+public class CLVRPdfService {
 
-public class VaccinationSummaryCard {
-
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-    private NUVAService nuvaService;
+    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    public VaccinationSummaryCard(NUVAService nuvaService) {
+    private NUVAService nuvaService;
+
+
+    public CLVRPdfService(NUVAService nuvaService) {
         this.nuvaService = nuvaService;
     }
 
-    public PDDocument generatePDF(CLVRPayload payload, byte[] qrCode, String creator) throws IOException, WriterException {
+
+    public PDDocument createPdf(CLVRPayload payload, byte[] qrCode, String creator) throws IOException, WriterException {
         // Create a new document
         PDDocument document = new PDDocument();
 
@@ -57,7 +59,7 @@ public class VaccinationSummaryCard {
         content.beginText();
         content.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 20);
         content.newLineAtOffset(margin, yStart);
-        content.showText("Vaccination History Summary");
+        content.showText("Vaccination History Summary - TEST");
         content.endText();
 
         yStart -= 40;
@@ -127,11 +129,13 @@ public class VaccinationSummaryCard {
         return document;
     }
 
-    // Helper: Generate QR code as BufferedImage
-    private BufferedImage generateQRCodeImage(String data, int width, int height) throws WriterException {
-        Map<EncodeHintType, Object> hints = new HashMap<>();
-        hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
-        BitMatrix matrix = new MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, width, height, hints);
-        return MatrixToImageWriter.toBufferedImage(matrix);
+    protected static void printPdf(
+            PDDocument pdDocument,
+            String name
+    ) throws IOException {
+        String fileName = StringUtils.substringBefore(name,".");
+		pdDocument.save(fileName + ".pdf");
+        pdDocument.close();
     }
+
 }
