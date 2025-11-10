@@ -6,6 +6,8 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.syadem.nuva.Vaccine;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBufferedFile;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -17,8 +19,11 @@ import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.VaccinationRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -26,7 +31,9 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class CLVRPdfService {
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    public static final String PDF_TEMPLATE_PDF = "src/test/resources/pdf_template.pdf";
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -41,16 +48,30 @@ public class CLVRPdfService {
 
     public PDDocument createPdf(CLVRPayload payload, byte[] qrCode, String creator) throws IOException, WriterException {
         // Create a new document
-        PDDocument document = new PDDocument();
+        PDDocument document;
+        PDPage page;
+        PDPageContentStream content;
+
+        try {
+            document = Loader.loadPDF(new RandomAccessReadBufferedFile(PDF_TEMPLATE_PDF));
+            page = document.getPage(0);
+            content = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, false, true);
+
+        } catch (IOException ioException) {
+            document = new PDDocument();
+            page = new PDPage(PDRectangle.A4);
+            document.addPage(page);
+            content = new PDPageContentStream(document, page);
+
+            logger.info("PDF template not found for CLVR, using blank new document");
+        }
 
         PDDocumentInformation pdDocumentInformation = new PDDocumentInformation();
         document.setDocumentInformation(pdDocumentInformation);
         pdDocumentInformation.setCreator(creator);
         pdDocumentInformation.setCustomMetadataValue("evc", objectMapper.writeValueAsString(payload));
-        PDPage page = new PDPage(PDRectangle.A4);
-        document.addPage(page);
 
-        PDPageContentStream content = new PDPageContentStream(document, page);
+
 
         float margin = 50;
         float yStart = page.getMediaBox().getHeight() - margin;
@@ -59,7 +80,7 @@ public class CLVRPdfService {
         content.beginText();
         content.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 20);
         content.newLineAtOffset(margin, yStart);
-        content.showText("Vaccination History Summary - TEST");
+        content.showText("Vaccination History Summary - CLVR TEST");
         content.endText();
 
         yStart -= 40;
