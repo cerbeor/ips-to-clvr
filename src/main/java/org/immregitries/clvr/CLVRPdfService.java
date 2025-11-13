@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -31,9 +30,12 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class CLVRPdfService {
+    public static final float TRANSPARENCY_HIGH = 1f;
+    public static final float TRANSPARENCY_LOW = 0.6f;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final String PDF_TEMPLATE_PDF = "src/test/resources/pdf_template.pdf";
+    public static final String CLVR_SVG = "src/test/resources/clvr.png";
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -74,24 +76,58 @@ public class CLVRPdfService {
 
 
         float margin = 50;
-        float yStart = page.getMediaBox().getHeight() - margin;
+        float langageMargin = -15;
+        float yStart = page.getMediaBox().getHeight() - margin * 2;
+
+        PDType1Font bold = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+        PDType1Font normalFont = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+        PDType1Font oblique = new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE);
+        PDType1Font boldOblique = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD_OBLIQUE);
 
         // Header
         content.beginText();
-        content.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 20);
+        content.setFont(bold, 20);
         content.newLineAtOffset(margin, yStart);
-        content.showText("Vaccination History Summary - CLVR TEST");
-        content.endText();
+        content.showText("Vaccination Summary");
+        content.newLineAtOffset(10, langageMargin);
+        content.setFont(oblique, 16);
+        content.setStrokingColor(TRANSPARENCY_LOW);
 
-        yStart -= 40;
+        content.showText("Historique Vaccinal");
+        content.newLineAtOffset(0, langageMargin);
+        content.showText("Historial de vacunación");
+        content.endText();
+        content.setStrokingColor(TRANSPARENCY_HIGH);
+
+
+        yStart -= 60;
+
 
         // Patient Info
         content.beginText();
-        content.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
+        content.setFont(normalFont, 12);
         content.newLineAtOffset(margin, yStart);
-        content.showText("Name: " + payload.getName().getGivenName() + " " + payload.getName().getFamilyName());
+        printLabels(content, "First Name", "Prénom", "Nombre", oblique);
+        content.setFont(bold, 12);
+        content.setStrokingColor(TRANSPARENCY_HIGH);
+        content.showText(": " + payload.getName().getGivenName());
+        content.setFont(normalFont, 12);
+
         content.newLineAtOffset(0, -15);
-        content.showText("Date of Birth: " + simpleDateFormat.format(payload.getDateOfBirth()));
+        printLabels(content, "Last Name", "Nom de Famille", "Apellido", oblique);
+        content.setFont(bold, 12);
+        content.showText(": " + payload.getName().getFamilyName());
+        content.setFont(normalFont, 12);
+
+
+
+
+        content.newLineAtOffset(0, -15);
+        printLabels(content, "Date of Birth", "Date de Naissance", "Cumpleaños", oblique);
+        content.setFont(bold, 12);
+        content.showText(": " + simpleDateFormat.format(payload.getDateOfBirth()));
+        content.setFont(normalFont, 12);
+
 //        content.newLineAtOffset(0, -15);
 //        if (payload.getPersonIdentifier().)
 //        content.showText("Patient ID: " + payload.getPersonIdentifier());
@@ -101,19 +137,22 @@ public class CLVRPdfService {
 
         // Table Header
         content.beginText();
-        content.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 12);
+        content.setFont(bold, 12);
         content.newLineAtOffset(margin, yStart);
-        content.showText("Vaccine");
+        printLabels(content, "Vaccine", "Vaccin", "Vacuna", oblique);
         content.newLineAtOffset(150, 0);
-        content.showText("Date");
+        content.setFont(bold, 12);
+        printLabels(content, "Date", "Date", "Fecha", oblique);
         content.newLineAtOffset(150, 0);
-        content.showText("Country");
+        content.setFont(bold, 12);
+        printLabels(content, "Country", "Pays", "País", oblique);
+
         content.endText();
 
         yStart -= 20;
 
         // Draw table rows
-        content.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
+        content.setFont(normalFont, 12);
         for (VaccinationRecord record : payload.getVaccinationRecords()) {
             Vaccine vaccine = nuvaService.getNuva().getQueries().lookupVaccineByCode(record.getNuvaCode());
             content.beginText();
@@ -129,25 +168,40 @@ public class CLVRPdfService {
         }
 
         PDImageXObject qrCodeImageObject;
+        int qr_width = 300; // Desired QR code width
+        int qr_height = 300; // Desired QR code height
+        int qr_x = 150;
+        int qr_y = 50;
         {
-            int width = 300; // Desired QR code width
-            int height = 300; // Desired QR code height
-            BitMatrix bitMatrix = CompressionUtil.qrCodeBitMatrix(new String(qrCode), width, height);
+            BitMatrix bitMatrix = CompressionUtil.qrCodeBitMatrix(new String(qrCode), qr_width, qr_height);
             BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
             qrCodeImageObject = LosslessFactory.createFromImage(document, bufferedImage);
+            content.drawImage(qrCodeImageObject, qr_x, qr_y);
         }
-        content.drawImage(qrCodeImageObject, 150, 150);
+        // CLVR SVG
+
+        PDImageXObject clvrLogoImage = PDImageXObject.createFromFile(CLVR_SVG, document);
+        content.drawImage(clvrLogoImage, qr_x, qr_y + qr_height);
 
         // Footer text
         content.beginText();
-        content.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE), 10);
+        content.setFont(oblique, 10);
         content.newLineAtOffset(margin, 30);
-        content.showText("Generated on: " + LocalDate.now());
+        content.showText("Generated on: " + LocalDate.now() + " by " + creator);
         content.endText();
 
         // Close everything
         content.close();
         return document;
+    }
+
+    private static void printLabels(PDPageContentStream content, String english, String french, String spanish, PDType1Font oblique) throws IOException {
+        content.showText(english + " ");
+        content.setFont(oblique, 12);
+        content.setStrokingColor(CLVRPdfService.TRANSPARENCY_LOW);
+        content.showText("("+ french +"/");
+        content.showText(spanish +")");
+        content.setStrokingColor(CLVRPdfService.TRANSPARENCY_HIGH);
     }
 
     protected static void printPdf(
