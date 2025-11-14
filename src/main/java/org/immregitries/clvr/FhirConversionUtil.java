@@ -6,6 +6,8 @@ import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.VaccinationRecord;
 
 public abstract class FhirConversionUtil<Bundle extends IBaseBundle, Immunization extends IDomainResource,Patient extends IDomainResource> {
+    public static final String COUNTRY_ORIGIN_SYSTEM = "http://hl7.org/fhir/ValueSet/country";
+
     public NUVAService getNuvaService() {
         return nuvaService;
     }

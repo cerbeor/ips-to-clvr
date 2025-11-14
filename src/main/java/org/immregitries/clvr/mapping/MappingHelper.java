@@ -113,19 +113,19 @@ public class MappingHelper {
 		return identifiers.stream().filter(identifier -> identifier.hasType() && identifier.getType().hasCoding() && identifier.getType().getCodingFirstRep().getCode().equals(type)).findFirst().orElse(null);
 	}
 
-	public static org.hl7.fhir.r4.model.Coding filterCodeableConceptR4(org.hl7.fhir.r4.model.CodeableConcept concept, String system) {
+	public static org.hl7.fhir.r4.model.Coding filterCodeableConcept(org.hl7.fhir.r4.model.CodeableConcept concept, String system) {
 		return filterCodingListR4(concept.getCoding(), system);
 	}
-	public static org.hl7.fhir.r5.model.Coding filterCodeableConceptR5(org.hl7.fhir.r5.model.CodeableConcept concept, String system) {
+	public static org.hl7.fhir.r5.model.Coding filterCodeableConcept(org.hl7.fhir.r5.model.CodeableConcept concept, String system) {
 		return filterCodingListR5(concept.getCoding(), system);
 	}
 
 	public static org.hl7.fhir.r4.model.Coding filterCodingListR4(List<org.hl7.fhir.r4.model.Coding> codings, String system) {
-		return codings.stream().filter(coding -> coding.getSystem().equals(system)).findFirst().orElse(null);
+		return codings.stream().filter(coding -> coding.getSystem().equals(system)).findFirst().orElse(new org.hl7.fhir.r4.model.Coding());
 	}
 
 	public static org.hl7.fhir.r5.model.Coding filterCodingListR5(List<org.hl7.fhir.r5.model.Coding> codings, String system) {
-		return codings.stream().filter(coding -> coding.getSystem().equals(system)).findFirst().orElse(null);
+		return codings.stream().filter(coding -> coding.getSystem().equals(system)).findFirst().orElse(new Coding());
 	}
 
 	public static CodeableConcept extensionGetCodeableConcept(Extension extension) {

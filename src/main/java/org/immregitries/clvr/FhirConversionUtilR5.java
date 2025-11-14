@@ -20,6 +20,8 @@ import java.util.concurrent.TimeUnit;
 import static org.immregitries.clvr.mapping.MappingHelper.MRN_TYPE_VALUE;
 
 public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunization, Patient> {
+    public static final String REPOSITORY_INDEX_SYSTEM = "repositoryIndexCoding";
+    public static final String REFERENCE_SYSTEM = "reference";
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public FhirConversionUtilR5(NUVAService nuvaService) {
@@ -42,14 +44,28 @@ public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunizatio
     public VaccinationRecord toVaccinationRecord(Immunization immunization, Patient patient) {
         VaccinationRecord record = new VaccinationRecord();
 
+        CodeableConcept immunizationReportOrigin = immunization.getInformationSource().getConcept();
+        // TODO map for registry of registries
+        // TODO define FHIR CodeableConcept profile
+        if (immunizationReportOrigin != null && immunizationReportOrigin.hasCoding()) {
 
-        // tODO map for registry of registries
-        if (immunization.hasInformationSource()) {
-            immunization.getInformationSource().getConcept().getCodingFirstRep().getCode();
-            record.setRegistryCode("USA");
-            //Arbitrary values, since IIs sandbox in no registry info
-            record.setRepositoryIndex(0);
-            record.setReference(0);
+            Coding countryCoding = MappingHelper.filterCodeableConcept(immunizationReportOrigin, COUNTRY_ORIGIN_SYSTEM);
+            if (countryCoding.hasCode()) {
+                // TODO make a Registry of Registries to identify country with FHIR ReportOrigin
+                countryCoding.setCode(countryCoding.getCode());
+            }
+            Coding repositoryIndexCoding = MappingHelper.filterCodeableConcept(immunizationReportOrigin, REPOSITORY_INDEX_SYSTEM);
+            if (repositoryIndexCoding.hasCode()) {
+                record.setRepositoryIndex(Integer.parseInt(repositoryIndexCoding.getCode()));
+            }
+            Coding reference = MappingHelper.filterCodeableConcept(immunizationReportOrigin, REFERENCE_SYSTEM);
+            if (reference.hasCode()) {
+                record.setReference(Integer.parseInt(reference.getCode()));
+            }
+            //Arbitrary value, since IIs sandbox is in no registry info
+            if (StringUtils.isBlank(record.getRegistryCode())) {
+                record.setRegistryCode("USA");
+            }
         }
 
         try {
@@ -59,8 +75,8 @@ public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunizatio
 
 
         // TODO support more codes like snomed
-        Coding cvxCoding = MappingHelper.filterCodeableConceptR5(immunization.getVaccineCode(), MappingHelper.CVX_SYSTEM);
-        if (cvxCoding != null && StringUtils.isNotBlank(cvxCoding.getCode())) {
+        Coding cvxCoding = org.immregitries.clvr.mapping.MappingHelper.filterCodeableConcept(immunization.getVaccineCode(), MappingHelper.CVX_SYSTEM);
+        if (cvxCoding.hasCode()) {
             Optional<Vaccine> byCvx = getNuvaService().findByCvx(cvxCoding.getCode());
             byCvx.ifPresent(vaccine -> record.setNuvaCode(vaccine.getCode()));
         }
