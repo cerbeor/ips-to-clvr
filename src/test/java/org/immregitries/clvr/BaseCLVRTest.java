@@ -18,7 +18,6 @@ import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.interfaces.ECPublicKey;
 import java.util.Optional;
-import java.util.zip.DataFormatException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -50,7 +49,7 @@ public class BaseCLVRTest {
     protected TestKeyPairManager testKeyPairManager;
 
 
-    protected FhirConversionUtil fhirToCLVRPayloadUtil;
+    protected FhirConversionUtilR4 fhirToCLVRPayloadUtil;
     protected ObjectMapper objectMapper = new ObjectMapper();
 
 
@@ -61,7 +60,7 @@ public class BaseCLVRTest {
         this.signingService = new SigningService();
         this.qrCodeService = new QrCodeService();
         this.cLVRService = new CLVRService(signingService,cborService,qrCodeService);
-        this.fhirToCLVRPayloadUtil = new FhirConversionUtil(nuvaService);
+        this.fhirToCLVRPayloadUtil = new FhirConversionUtilR4(nuvaService);
         this.testKeyPairManager = new TestKeyPairManager(folder);
 //        BasicConfigurator.configure();
     }

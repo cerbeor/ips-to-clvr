@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class FhirConversionUtilTest extends BaseCLVRTest {
 
     public static final String IPS_SAMPLE = "{\n" +
@@ -100,12 +98,12 @@ class FhirConversionUtilTest extends BaseCLVRTest {
             "    }\n" +
             "  ]\n" +
             "}\n";
-    private FhirConversionUtil fhirConversionUtil;
+    private FhirConversionUtilR4 fhirConversionUtilImpl;
     private FhirContext fhirContext = FhirContext.forR4();
 
     public FhirConversionUtilTest() throws IOException {
         super();
-        fhirConversionUtil = new FhirConversionUtil(nuvaService);
+        fhirConversionUtilImpl = new FhirConversionUtilR4(nuvaService);
     }
 
     @Test
@@ -129,7 +127,7 @@ class FhirConversionUtilTest extends BaseCLVRTest {
         String ipsSample = IPS_SAMPLE;
         String testSample = TEST_SAMPLE;
         Bundle bundle = fhirContext.newJsonParser().parseResource(Bundle.class, ipsSample);
-        CLVRPayload clvrPayloadFromBundle = fhirConversionUtil.toCLVRPayloadFromBundle(bundle);
+        CLVRPayload clvrPayloadFromBundle = fhirConversionUtilImpl.toCLVRPayloadFromBundle(bundle);
 //        assertNotNull(clvrPayloadFromBundle);
 //        assertEquals(clvrPayloadFromBundle.toString(), objectMapper.readValue(testSample,CLVRPayload.class).toString());
     }

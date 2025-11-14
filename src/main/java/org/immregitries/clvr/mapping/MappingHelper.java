@@ -116,8 +116,15 @@ public class MappingHelper {
 	public static org.hl7.fhir.r4.model.Coding filterCodeableConceptR4(org.hl7.fhir.r4.model.CodeableConcept concept, String system) {
 		return filterCodingListR4(concept.getCoding(), system);
 	}
+	public static org.hl7.fhir.r5.model.Coding filterCodeableConceptR5(org.hl7.fhir.r5.model.CodeableConcept concept, String system) {
+		return filterCodingListR5(concept.getCoding(), system);
+	}
 
 	public static org.hl7.fhir.r4.model.Coding filterCodingListR4(List<org.hl7.fhir.r4.model.Coding> codings, String system) {
+		return codings.stream().filter(coding -> coding.getSystem().equals(system)).findFirst().orElse(null);
+	}
+
+	public static org.hl7.fhir.r5.model.Coding filterCodingListR5(List<org.hl7.fhir.r5.model.Coding> codings, String system) {
 		return codings.stream().filter(coding -> coding.getSystem().equals(system)).findFirst().orElse(null);
 	}
 
