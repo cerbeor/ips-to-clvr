@@ -15,19 +15,24 @@ The core purpose of the `IPS-to-CLVR` library is to act as a **data bridge**. It
 * **FHIR IPS Ingestion:** Parses and validates input against the FHIR IPS Implementation Guide.
 * **CLVR Mapping:** Translates structured FHIR data elements (e.g., `Immunization`, `AllergyIntolerance`) into the corresponding CLVR data fields.
 * **CLVR Payload Generation:** Creates the final, compact byte-string payload conforming to the European CLVR QR Code specification.
+* **QR Code Generation:** Encodes the final CLVR payload into a standardized **QR Code** for physical or digital presentation.
+* **Generate Sample Vaccine Certificate with CLVR:** Produces a demonstration certificate document containing the QR code and human-readable CLVR data.
 
 ---
 
-## 🛠️ Technology Stack
+## 🛠️ Technology and Specifications Used
 
-* **Language:** Java (JDK 11+)
+* **Language:** **Java (JDK 17+)**
 * **Build Tool:** Maven
 * **FHIR Library:** HAPI FHIR 
-* **Dependencies:** Custom CLVR serialization/deserialization library (to be specified/implemented).
+* **Data Encoding:** **CBOR** (Concise Binary Object Representation) for compact data structuring.
+* **Security:** **COSE** (CBOR Object Signing and Encryption) for signing and ensuring payload integrity.
+* **Vaccination Terminology:** **NUVA** (Nomenclature Unifiee des Vaccins - Unified Vaccine Nomenclature) for standardizing vaccine codes.
+* **Document Handling:** **PdfBox** for potential downstream generation or reading of PDF documentation related to the summary.
 
 ### Prerequisites
 
-* Java Development Kit (JDK) 11 or later.
+* Java Development Kit (**JDK 17 or later**).
 * Maven installed and configured.
 
 ---
