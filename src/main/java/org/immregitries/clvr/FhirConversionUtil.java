@@ -7,6 +7,8 @@ import org.immregitries.clvr.model.VaccinationRecord;
 
 public abstract class FhirConversionUtil<Bundle extends IBaseBundle, Immunization extends IDomainResource,Patient extends IDomainResource> {
     public static final String COUNTRY_ORIGIN_SYSTEM = "http://hl7.org/fhir/ValueSet/country";
+    public static final String REPOSITORY_INDEX_SYSTEM = "repositoryIndexCoding";
+    public static final String REFERENCE_SYSTEM = "reference";
 
     public NUVAService getNuvaService() {
         return nuvaService;

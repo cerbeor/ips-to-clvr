@@ -20,8 +20,7 @@ import java.util.concurrent.TimeUnit;
 import static org.immregitries.clvr.mapping.MappingHelper.MRN_TYPE_VALUE;
 
 public class FhirConversionUtilR4 extends FhirConversionUtil<Bundle, Immunization, Patient> {
-	public static final String REPOSITORY_INDEX_SYSTEM = "repositoryIndexCoding";
-	public static final String REFERENCE_SYSTEM = "reference";
+
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public FhirConversionUtilR4(NUVAService nuvaService) {
