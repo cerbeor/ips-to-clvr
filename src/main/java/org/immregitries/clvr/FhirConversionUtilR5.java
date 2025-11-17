@@ -132,14 +132,14 @@ public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunizatio
                     .filter(businessIdentifier -> MRN_TYPE_VALUE.equals(businessIdentifier.getType().getCodingFirstRep().getCode()))
                     .findFirst()
                     .orElse(patient.getIdentifierFirstRep());
-            PersonIdentifier evcId = new PersonIdentifier();
-            if (fhirIdentifier.hasSystem()) {
-                evcId.setObjectIdentifier(fhirIdentifier.getSystem());
-            }
-            if (fhirIdentifier.hasValue()) {
-                evcId.setId(fhirIdentifier.getValue());
-            }
-            payload.setPersonIdentifier(evcId);
+//            PersonIdentifier evcId = new PersonIdentifier();
+//            if (fhirIdentifier.hasSystem()) {
+//                evcId.setObjectIdentifier(fhirIdentifier.getSystem());
+//            }
+//            if (fhirIdentifier.hasValue()) {
+//                evcId.setId(fhirIdentifier.getValue());
+//            }
+//            payload.setPersonIdentifier(evcId);
         }
 
         // Initialize vaccination records list

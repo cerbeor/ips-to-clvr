@@ -6,6 +6,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import org.immregitries.clvr.model.AbstractCLVRComponent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -79,37 +80,6 @@ public class CompressionUtil {
 			deflater.end(); // Deallocates the native DEFLATER resources.
 		}
 		return outputStream.toByteArray();
-	}
-
-
-	/**
-	 * Removes all useless whitespace from a JSON string.
-	 * This method uses the Jackson library to parse and then write the JSON
-	 * in a compact format, preserving whitespace within string values.
-	 *
-	 * @param jsonString The input JSON string.
-	 * @return A minified JSON string with no useless whitespace.
-	 * @throws IOException If the JSON string is invalid.
-	 */
-	public static String minifyJson(String jsonString) throws IOException {
-		ObjectMapper objectMapper = new ObjectMapper();
-		JsonNode jsonNode = objectMapper.readTree(jsonString);
-		return objectMapper.writeValueAsString(jsonNode);
-	}
-
-	/**
-	 * Removes all useless whitespace from a JSON string.
-	 * This method uses the Jackson library to parse and then write the JSON
-	 * in a compact format, preserving whitespace within string values.
-	 *
-	 * @param jsonObject The input JSON serializable object.
-	 * @return A minified JSON string with no useless whitespace.
-	 * @throws IOException If the JSON string is invalid.
-	 */
-	public static String minifyJson(Object jsonObject) throws IOException {
-		ObjectMapper objectMapper = new ObjectMapper();
-		JsonNode jsonNode = objectMapper.valueToTree(jsonObject);
-		return objectMapper.writeValueAsString(jsonNode);
 	}
 
 	public static BitMatrix qrCodeBitMatrix(String data, int width, int height) {

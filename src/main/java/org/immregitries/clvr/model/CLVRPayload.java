@@ -24,7 +24,6 @@ public class CLVRPayload extends AbstractCLVRComponent implements Serializable {
 	@JsonProperty("nam")
 	private Name name;
 
-//	@JsonProperty(DOB)
 	/*
 	 * See getter and setter for logic with formatting
 	 */
@@ -35,9 +34,9 @@ public class CLVRPayload extends AbstractCLVRComponent implements Serializable {
 	/*
 	 * Not present in CLVR anymore apparently TODO ask
 	 */
-	@JsonIgnore()
-//	@JsonProperty("pid")
-	private PersonIdentifier personIdentifier;
+//	@JsonIgnore()
+////	@JsonProperty("pid")
+//	private PersonIdentifier personIdentifier;
 
 	@JsonProperty("v")
 	private List<VaccinationRecord> vaccinationRecords;
@@ -76,13 +75,13 @@ public class CLVRPayload extends AbstractCLVRComponent implements Serializable {
 		this.dateOfBirth = dateOfBirth;
 	}
 
-	public PersonIdentifier getPersonIdentifier() {
-		return personIdentifier;
-	}
-
-	public void setPersonIdentifier(PersonIdentifier personIdentifier) {
-		this.personIdentifier = personIdentifier;
-	}
+//	public PersonIdentifier getPersonIdentifier() {
+//		return personIdentifier;
+//	}
+//
+//	public void setPersonIdentifier(PersonIdentifier personIdentifier) {
+//		this.personIdentifier = personIdentifier;
+//	}
 
 	public List<VaccinationRecord> getVaccinationRecords() {
 		return vaccinationRecords;

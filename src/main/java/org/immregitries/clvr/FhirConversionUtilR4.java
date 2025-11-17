@@ -128,20 +128,20 @@ public class FhirConversionUtilR4 extends FhirConversionUtil<Bundle, Immunizatio
 		}
 
 		// Populate person identifier (pid) if available, TODO functionality to choose Identifier
-		if (patient.hasIdentifier()) {
-			Identifier fhirIdentifier = patient.getIdentifier().stream()
-				.filter(businessIdentifier -> MRN_TYPE_VALUE.equals(businessIdentifier.getType().getCodingFirstRep().getCode()))
-				.findFirst()
-				.orElse(patient.getIdentifierFirstRep());
-			PersonIdentifier evcId = new PersonIdentifier();
-			if (fhirIdentifier.hasSystem()) {
-				evcId.setObjectIdentifier(fhirIdentifier.getSystem());
-			}
-			if (fhirIdentifier.hasValue()) {
-				evcId.setId(fhirIdentifier.getValue());
-			}
-			payload.setPersonIdentifier(evcId);
-		}
+//		if (patient.hasIdentifier()) {
+//			Identifier fhirIdentifier = patient.getIdentifier().stream()
+//				.filter(businessIdentifier -> MRN_TYPE_VALUE.equals(businessIdentifier.getType().getCodingFirstRep().getCode()))
+//				.findFirst()
+//				.orElse(patient.getIdentifierFirstRep());
+//			PersonIdentifier evcId = new PersonIdentifier();
+//			if (fhirIdentifier.hasSystem()) {
+//				evcId.setObjectIdentifier(fhirIdentifier.getSystem());
+//			}
+//			if (fhirIdentifier.hasValue()) {
+//				evcId.setId(fhirIdentifier.getValue());
+//			}
+//			payload.setPersonIdentifier(evcId);
+//		}
 
 		// Initialize vaccination records list
 		payload.setVaccinationRecords(new ArrayList<>());
