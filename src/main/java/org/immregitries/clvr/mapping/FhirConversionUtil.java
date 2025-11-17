@@ -6,7 +6,7 @@ import org.immregitries.clvr.NUVAService;
 import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.VaccinationRecord;
 
-public abstract class FhirConversionUtil<Bundle extends IBaseBundle, Immunization extends IDomainResource,Patient extends IDomainResource> {
+public abstract class FhirConversionUtil<Bundle extends IBaseBundle, Immunization extends IDomainResource, Patient extends IDomainResource> {
     public static final String IMMUNIZATION_ORIGIN_EXTENDED = "http://hl7.org/fhir/ValueSet/immunization-origin";
     public static final String COUNTRY_ORIGIN_SYSTEM = "http://hl7.org/fhir/ValueSet/country";
     public static final String REPOSITORY_INDEX_SYSTEM = "repositoryIndexCoding";

@@ -6,6 +6,10 @@ import com.nimbusds.jose.jwk.ECKey;
 import com.syadem.nuva.NUVA;
 import com.syadem.nuva.SupportedLocale;
 import com.syadem.nuva.Vaccine;
+import org.immregitries.clvr.impl.CLVRServiceImpl;
+import org.immregitries.clvr.impl.CborServiceImpl;
+import org.immregitries.clvr.impl.QrCodeServiceImpl;
+import org.immregitries.clvr.impl.SigningServiceImpl;
 import org.immregitries.clvr.mapping.FhirConversionUtilR4;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +46,7 @@ public class BaseCLVRTest {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected NUVAService nuvaService;
-    protected CLVRService cLVRService;
+    protected CLVRService clvrService;
     protected SigningService signingService;
     protected CborService cborService;
     protected QrCodeService qrCodeService;
@@ -57,10 +61,10 @@ public class BaseCLVRTest {
     public BaseCLVRTest() throws IOException {
         NUVA nuva = NUVA.load(SupportedLocale.English);
         this.nuvaService = new NUVAService(nuva);
-        this.cborService = new CborService();
-        this.signingService = new SigningService();
-        this.qrCodeService = new QrCodeService();
-        this.cLVRService = new CLVRService(signingService,cborService,qrCodeService);
+        this.cborService = new CborServiceImpl();
+        this.signingService = new SigningServiceImpl();
+        this.qrCodeService = new QrCodeServiceImpl();
+        this.clvrService = new CLVRServiceImpl(signingService,cborService, qrCodeService);
         this.fhirToCLVRPayloadUtil = new FhirConversionUtilR4(nuvaService);
         this.testKeyPairManager = new TestKeyPairManager(folder);
 //        BasicConfigurator.configure();

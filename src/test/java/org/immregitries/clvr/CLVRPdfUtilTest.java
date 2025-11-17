@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.WriterException;
 import com.syadem.nuva.NUVA;
 import com.syadem.nuva.SupportedLocale;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.immregitries.clvr.impl.CLVRPdfServiceImpl;
 import org.immregitries.clvr.model.CLVRPayload;
 import org.junit.jupiter.api.Test;
 
@@ -20,17 +22,22 @@ class CLVRPdfUtilTest {
 
     public CLVRPdfUtilTest() throws IOException {
         this.nuvaService = new NUVAService(NUVA.load(SupportedLocale.English));
-        this.clvrPdfService = new CLVRPdfService(nuvaService);
+        this.clvrPdfService = new CLVRPdfServiceImpl(nuvaService);
     }
 
     @Test
     void createPdf() throws IOException, WriterException {
          CLVRPayload payload =  objectMapper.readValue(TEST_SAMPLE, CLVRPayload.class);
         PDDocument pdDocument = clvrPdfService.createPdf(payload, TEST_SAMPLE_QR.getBytes(), "Unit test");
-        CLVRPdfService.printPdf(pdDocument,"unit-test-pdf");
+        printPdf(pdDocument,"unit-test-pdf");
     }
 
-    @Test
-    void printPdf() {
+    private static void printPdf(
+            PDDocument pdDocument,
+            String name
+    ) throws IOException {
+        String fileName = StringUtils.substringBefore(name,".");
+        pdDocument.save(fileName + ".pdf");
+        pdDocument.close();
     }
 }

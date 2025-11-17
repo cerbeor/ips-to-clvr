@@ -35,7 +35,7 @@ class QrCodeServiceTest extends BaseCLVRTest {
     private void extracted(String qr, String originalPayload) throws COSEException, IOException, DataFormatException {
         //        byte[] cbor = cborService.toCbor(objectMapper.readValue(sample,CLVRPayload.class));
 //        logger.info("Expected length {}, expected CBOR {}",cbor.length, new String(cbor));
-        CLVRPayload payload = cLVRService.decodeFullQrCode(qr.getBytes(), null);
+        CLVRPayload payload = clvrService.decodeFullQrCode(qr.getBytes(), null);
         assertEquals(objectMapper.readValue(originalPayload, CLVRPayload.class).toString(),payload.toString());
     }
 
