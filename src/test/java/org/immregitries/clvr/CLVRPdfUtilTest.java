@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.immregitries.clvr.impl.CLVRPdfServiceImpl;
 import org.immregitries.clvr.model.CLVRPayload;
+import org.immregitries.clvr.model.CLVRToken;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -27,8 +28,9 @@ class CLVRPdfUtilTest {
 
     @Test
     void createPdf() throws IOException, WriterException {
-         CLVRPayload payload =  objectMapper.readValue(TEST_SAMPLE, CLVRPayload.class);
-        PDDocument pdDocument = clvrPdfService.createPdf(payload, TEST_SAMPLE_QR.getBytes(), "Unit test");
+        CLVRPayload payload =  objectMapper.readValue(TEST_SAMPLE, CLVRPayload.class);
+        CLVRToken clvrToken = new CLVRToken(payload);
+        PDDocument pdDocument = clvrPdfService.createPdf(clvrToken, TEST_SAMPLE_QR.getBytes(), "Unit test");
         printPdf(pdDocument,"unit-test-pdf");
     }
 

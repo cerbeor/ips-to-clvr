@@ -53,11 +53,7 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
 
     @Override
     public PDDocument createPdf(CLVRToken token, byte[] qrCode, String creator) throws IOException, WriterException {
-        return createPdf(token.getClvrPayload(),qrCode, creator);
-    }
-
-    @Override
-    public PDDocument createPdf(CLVRPayload payload, byte[] qrCode, String creator) throws IOException, WriterException {
+        CLVRPayload payload = token.getClvrPayload();
 
         // Create a new document
         PDDocument document;
@@ -82,7 +78,6 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
         document.setDocumentInformation(pdDocumentInformation);
         pdDocumentInformation.setCreator(creator);
         pdDocumentInformation.setCustomMetadataValue("evc", objectMapper.writeValueAsString(payload));
-
 
 
         float margin = 50;
@@ -128,8 +123,6 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
         content.setFont(bold, 12);
         content.showText(": " + payload.getName().getFamilyName());
         content.setFont(normalFont, 12);
-
-
 
 
         content.newLineAtOffset(0, -15);
