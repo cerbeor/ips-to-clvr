@@ -27,12 +27,10 @@ public class CborService {
     public byte[] toCbor(CLVRPayload clvrPayload) throws IOException {
         CLVRToken clvrToken= new CLVRToken(clvrPayload);
         byte[] cbor = cborMapper.writeValueAsBytes(clvrToken);
-//        logger.info("CBOR byte array created successfully.\ninputObject: {}\ncbor: {}\nparsed: {}", new ObjectMapper().writeValueAsString(clvrPayload), new String(cbor), cborMapper.createParser(cbor).readValueAsTree());
         return cbor;
     }
 
     public CLVRPayload undoCbor(byte[] cbor) throws IOException {
-		logger.info("parse CBOR cbor: {}\nparsed: {}", new String(cbor), cborMapper.createParser(cbor).readValueAsTree());
         CLVRToken  clvrToken= cborMapper.readValue(cbor, CLVRToken.class);
         return clvrToken.getClvrPayload();
     }

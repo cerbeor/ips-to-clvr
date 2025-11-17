@@ -1,12 +1,11 @@
-package org.immregitries.clvr;
+package org.immregitries.clvr.mapping;
 
 import com.syadem.nuva.Vaccine;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r5.model.*;
-import org.immregitries.clvr.mapping.MappingHelper;
+import org.immregitries.clvr.NUVAService;
 import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.Name;
-import org.immregitries.clvr.model.PersonIdentifier;
 import org.immregitries.clvr.model.VaccinationRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,7 +131,7 @@ public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunizatio
                     .filter(businessIdentifier -> MRN_TYPE_VALUE.equals(businessIdentifier.getType().getCodingFirstRep().getCode()))
                     .findFirst()
                     .orElse(patient.getIdentifierFirstRep());
-//            PersonIdentifier evcId = new PersonIdentifier();
+//            Perso=dentifier evcId = new PersonIdentifier();
 //            if (fhirIdentifier.hasSystem()) {
 //                evcId.setObjectIdentifier(fhirIdentifier.getSystem());
 //            }

@@ -6,6 +6,7 @@ import com.nimbusds.jose.jwk.ECKey;
 import com.syadem.nuva.NUVA;
 import com.syadem.nuva.SupportedLocale;
 import com.syadem.nuva.Vaccine;
+import org.immregitries.clvr.mapping.FhirConversionUtilR4;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -93,8 +94,8 @@ public class BaseCLVRTest {
                     .build();
 
             // 3. Print the public EC JWK parameters
-            logger.info("Public Key : " + jwk.toPublicJWK().toJSONString());
-            logger.info("Private Key : " + jwk.toJSONString());
+//            logger.info("Key : " + jwk.toPublicJWK().toJSONString());
+//            logger.info("Private Key : " + jwk.toJSONString());
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -80,7 +80,6 @@ public class SigningService {
             classCastException.printStackTrace();
             coseSign1 = COSESign1.build(item);
         }
-//        logger.info("DECODED \nCborItem: {}\n prettify {}\n base64 {}\n", cborMapper.createParser(item.encode()).readValueAsTree(), item.prettify(), item.encodeToBase64Url());
 
         /*
          * Verify signature
@@ -90,21 +89,11 @@ public class SigningService {
             boolean verify = false;
             try {
                 verify = coseVerifier.verify(coseSign1, null);
-//				logger.info("VERIFIER Cose Sign encode: {}\n VERIFIED: {}\n  payload: {}\n", new String(encode), verify, coseSign1.getPayload());
             } catch (COSEException e) {
                 logger.error(e.getMessage());
             }
         }
 
-		CBORParser cborParser = new CBORParser(encode);
-		Object object = cborParser.next();
-		while (object != null) {
-			logger.info("PARSED \nOBJECT: {}\n", object);
-			object = cborParser.next();
-		}
-        logger.info("cose payload prettify {}", coseSign1.getPayload().prettify());
-        logger.info("cose payload base64 {}", coseSign1.getPayload().encodeToHex());
-        logger.info("cose payload encode {}", new String(coseSign1.getPayload().encode()));
         byte[] bytes = coseSign1.getPayload().encode();
         /*
          * Removing bytes added through Cose to only get the payload

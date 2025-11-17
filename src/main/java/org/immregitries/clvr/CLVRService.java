@@ -14,7 +14,6 @@ import java.util.zip.DataFormatException;
 public class CLVRService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public static final String VC_1 = "VC1:";
 	public static final boolean NOWRAP = false;
 
 	private SigningService signingService;
@@ -30,8 +29,6 @@ public class CLVRService {
 	public String encodeCLVRtoQrCode(CLVRPayload CLVRPayload, KeyPair keyPair) throws IOException, COSEException, SignatureException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException {
 		byte[] cborPayload = cborService.toCbor(CLVRPayload);
 		byte[] cosePayload = signingService.createCoseSign1(cborPayload, keyPair);
-//		byte[] coseOld = createCoseSign1Old(iisSigningKey, cborPayload);
-//		logger.info("test cose {}\n, coseold {}\n", cosePayload, coseOld);
 		byte[] deflated = CompressionUtil.deflate(cosePayload, NOWRAP);
 		return qrCodeService.encodeQrCode(deflated);
 	}

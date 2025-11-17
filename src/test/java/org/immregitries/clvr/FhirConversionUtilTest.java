@@ -3,6 +3,7 @@ package org.immregitries.clvr;
 import ca.uhn.fhir.context.FhirContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.hl7.fhir.r4.model.Bundle;
+import org.immregitries.clvr.mapping.FhirConversionUtilR4;
 import org.immregitries.clvr.model.CLVRPayload;
 import org.junit.jupiter.api.Test;
 
