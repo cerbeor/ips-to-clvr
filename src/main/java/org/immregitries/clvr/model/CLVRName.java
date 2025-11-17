@@ -1,14 +1,13 @@
 package org.immregitries.clvr.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.Serializable;
 
 /**
  * Nested class representing the "nam" structure.
  */
-public class Name extends AbstractCLVRComponent implements Serializable {
+public class CLVRName extends AbstractCLVRComponent implements Serializable {
     @JsonProperty("fnt")
     private String familyName;
 

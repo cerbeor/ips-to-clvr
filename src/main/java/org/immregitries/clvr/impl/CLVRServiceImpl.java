@@ -3,6 +3,7 @@ package org.immregitries.clvr.impl;
 import com.authlete.cose.*;
 import org.immregitries.clvr.*;
 import org.immregitries.clvr.model.CLVRPayload;
+import org.immregitries.clvr.model.CLVRToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +25,8 @@ public class CLVRServiceImpl implements CLVRService {
 	}
 
 	@Override
-	public String encodeCLVRtoQrCode(CLVRPayload CLVRPayload, KeyPair keyPair) throws IOException, COSEException, SignatureException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException {
-		byte[] cborPayload = cborService.toCbor(CLVRPayload);
+	public String encodeCLVRtoQrCode(CLVRToken clvrToken, KeyPair keyPair) throws IOException, COSEException, SignatureException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException {
+		byte[] cborPayload = cborService.toCbor(clvrToken);
 		byte[] cosePayload = signingService.createCoseSign1(cborPayload, keyPair);
 		byte[] deflated = CompressionUtil.deflate(cosePayload, NOWRAP);
 		return qrCodeService.encodeQrCode(deflated);
@@ -33,7 +34,7 @@ public class CLVRServiceImpl implements CLVRService {
 
 
 	@Override
-	public CLVRPayload decodeFullQrCode(byte[] qrcode, KeyPair keyPair) throws COSEException, IOException, DataFormatException {
+	public CLVRToken decodeFullQrCode(byte[] qrcode, KeyPair keyPair) throws COSEException, IOException, DataFormatException {
 		byte[] compressed = qrCodeService.decodeQrCode(qrcode);
 		byte[] cose = CompressionUtil.inflate(compressed, NOWRAP);
 		PublicKey aPublic = null;
@@ -41,8 +42,8 @@ public class CLVRServiceImpl implements CLVRService {
 			aPublic = keyPair.getPublic();
 		}
 		byte[] cbor = signingService.cborFromCoseSign1(cose, aPublic);
-		CLVRPayload CLVRPayload = cborService.undoCbor(cbor);
-		return CLVRPayload;
+		CLVRToken clvrToken = cborService.undoCbor(cbor);
+		return clvrToken;
 	}
 
 

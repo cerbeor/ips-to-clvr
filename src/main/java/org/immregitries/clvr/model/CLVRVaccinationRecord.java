@@ -1,14 +1,13 @@
 package org.immregitries.clvr.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.Serializable;
 
 /**
  * Nested class representing the vaccination record within the "v" array.
  */
-public class VaccinationRecord extends AbstractCLVRComponent implements Serializable {
+public class CLVRVaccinationRecord extends AbstractCLVRComponent implements Serializable {
     @JsonProperty("reg")
     private String registryCode;
 

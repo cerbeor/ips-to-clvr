@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.text.SimpleDateFormat;
 
+/**
+ * Unifies Serialization of subclasses into string using the Jackson mappings
+ */
 public class AbstractCLVRComponent {
     public static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

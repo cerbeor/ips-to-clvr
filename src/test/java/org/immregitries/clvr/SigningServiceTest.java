@@ -2,6 +2,7 @@ package org.immregitries.clvr;
 
 import com.authlete.cose.COSEException;
 import org.immregitries.clvr.model.CLVRPayload;
+import org.immregitries.clvr.model.CLVRToken;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -33,7 +34,7 @@ class SigningServiceTest extends BaseCLVRTest {
     }
 
     void testSigningConsistence(CLVRPayload payload) throws IOException {
-        byte[] cbor = cborService.toCbor(payload);
+        byte[] cbor = cborService.toCbor(new CLVRToken(payload));
         testSigningConsistence(cbor);
     }
 

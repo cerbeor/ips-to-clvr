@@ -22,7 +22,7 @@ import org.immregitries.clvr.CompressionUtil;
 import org.immregitries.clvr.NUVAService;
 import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.CLVRToken;
-import org.immregitries.clvr.model.VaccinationRecord;
+import org.immregitries.clvr.model.CLVRVaccinationRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final String PDF_TEMPLATE_PDF = "src/main/resources/pdf_template.pdf";
-    public static final String CLVR_SVG = "src/main/resources/clvr.png";
+    public static final String CLVR_PNG = "src/main/resources/clvr.png";
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -50,7 +50,6 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
     public CLVRPdfServiceImpl(NUVAService nuvaService) {
         this.nuvaService = nuvaService;
     }
-
 
     @Override
     public PDDocument createPdf(CLVRToken token, byte[] qrCode, String creator) throws IOException, WriterException {
@@ -164,7 +163,7 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
 
         // Draw table rows
         content.setFont(normalFont, 12);
-        for (VaccinationRecord record : payload.getVaccinationRecords()) {
+        for (CLVRVaccinationRecord record : payload.getVaccinationRecords()) {
             Vaccine vaccine = nuvaService.getNuva().getQueries().lookupVaccineByCode(record.getNuvaCode());
             content.beginText();
             content.newLineAtOffset(margin, yStart);
@@ -191,7 +190,7 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
         }
         // CLVR SVG
 
-        PDImageXObject clvrLogoImage = PDImageXObject.createFromFile(CLVR_SVG, document);
+        PDImageXObject clvrLogoImage = PDImageXObject.createFromFile(CLVR_PNG, document);
         content.drawImage(clvrLogoImage, qr_x, qr_y + qr_height);
 
         // Footer text

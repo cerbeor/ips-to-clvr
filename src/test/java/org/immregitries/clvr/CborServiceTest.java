@@ -2,6 +2,7 @@ package org.immregitries.clvr;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.immregitries.clvr.model.CLVRPayload;
+import org.immregitries.clvr.model.CLVRToken;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,16 +31,19 @@ class CborServiceTest extends BaseCLVRTest {
     }
 
     void testCborConsistence(String string) throws JsonProcessingException {
-        CLVRPayload payload =  objectMapper.readValue(string, CLVRPayload.class);
+        CLVRPayload payload = objectMapper.readValue(string, CLVRPayload.class);
         testCborConsistence(payload);
     }
 
     void testCborConsistence(CLVRPayload payload) {
+        testCborConsistence(new CLVRToken(payload));
+    }
+    void testCborConsistence(CLVRToken clvrToken) {
         try {
-            byte[] cbor = cborService.toCbor(payload);
-            logger.info("Testing CBOR for {} -> {}", payload, new String(cbor));
-            CLVRPayload undone =  cborService.undoCbor(cbor);
-            assertEquals(payload.toString(), undone.toString());
+            byte[] cbor = cborService.toCbor(clvrToken);
+            logger.info("Testing CBOR for {} -> {}", clvrToken, new String(cbor));
+            CLVRToken undone =  cborService.undoCbor(cbor);
+            assertEquals(clvrToken.toString(), undone.toString());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

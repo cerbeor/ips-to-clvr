@@ -2,6 +2,7 @@ package org.immregitries.clvr;
 
 import com.authlete.cose.COSEException;
 import org.immregitries.clvr.model.CLVRPayload;
+import org.immregitries.clvr.model.CLVRToken;
 
 import java.io.IOException;
 import java.security.*;
@@ -10,7 +11,7 @@ import java.util.zip.DataFormatException;
 public interface CLVRService {
     boolean NOWRAP = false;
 
-    String encodeCLVRtoQrCode(CLVRPayload CLVRPayload, KeyPair keyPair) throws IOException, COSEException, SignatureException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException;
+    String encodeCLVRtoQrCode(CLVRToken clvrToken, KeyPair keyPair) throws IOException, COSEException, SignatureException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException;
 
-    CLVRPayload decodeFullQrCode(byte[] qrcode, KeyPair keyPair) throws COSEException, IOException, DataFormatException;
+    CLVRToken decodeFullQrCode(byte[] qrcode, KeyPair keyPair) throws COSEException, IOException, DataFormatException;
 }

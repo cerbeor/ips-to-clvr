@@ -1,11 +1,21 @@
 package org.immregitries.clvr;
 
 import org.immregitries.clvr.model.CLVRPayload;
+import org.immregitries.clvr.model.CLVRToken;
 
 import java.io.IOException;
 
+/**
+ * Cbor Conversion
+ */
 public interface CborService {
-    byte[] toCbor(CLVRPayload clvrPayload) throws IOException;
+    /**
+     * Converts to COSE
+     * @param clvrToken
+     * @return
+     * @throws IOException
+     */
+    byte[] toCbor(CLVRToken clvrToken) throws IOException;
 
-    CLVRPayload undoCbor(byte[] cbor) throws IOException;
+    CLVRToken undoCbor(byte[] cbor) throws IOException;
 }

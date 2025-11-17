@@ -7,6 +7,9 @@ import org.immregitries.clvr.model.CLVRToken;
 
 import java.io.IOException;
 
+/**
+ * Generates
+ */
 public interface CLVRPdfService {
     PDDocument createPdf(CLVRToken token, byte[] qrCode, String creator) throws IOException, WriterException;
 

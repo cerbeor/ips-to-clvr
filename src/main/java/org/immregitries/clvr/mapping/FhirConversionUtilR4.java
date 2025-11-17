@@ -5,8 +5,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.*;
 import org.immregitries.clvr.NUVAService;
 import org.immregitries.clvr.model.CLVRPayload;
-import org.immregitries.clvr.model.Name;
-import org.immregitries.clvr.model.VaccinationRecord;
+import org.immregitries.clvr.model.CLVRName;
+import org.immregitries.clvr.model.CLVRVaccinationRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,21 +23,9 @@ public class FhirConversionUtilR4 extends FhirConversionUtil<Bundle, Immunizatio
 		super(nuvaService);
 	}
 
-	/**
-	 * Converts a FHIR Immunization resource into an EvC VaccinationRecord.
-	 * <p>
-	 * This method assumes the FHIR resource contains the necessary data points
-	 * to populate the VaccinationRecord object. It uses the `meta.profile` to determine
-	 * the registry code and extracts other information from the resource.
-	 * </p>
-	 *
-	 * @param immunization The FHIR Immunization resource to convert.
-	 * @param patient      The FHIR Patient resource to calculate age from.
-	 * @return A VaccinationRecord object populated with data from the FHIR resource.
-	 */
 	@Override
-	public VaccinationRecord toVaccinationRecord(Immunization immunization, Patient patient) {
-		VaccinationRecord record = new VaccinationRecord();
+	public CLVRVaccinationRecord toVaccinationRecord(Immunization immunization, Patient patient) {
+		CLVRVaccinationRecord record = new CLVRVaccinationRecord();
 
 		CodeableConcept immunizationReportOrigin = immunization.getReportOrigin();
         // TODO map for registry of registries
@@ -88,18 +76,8 @@ public class FhirConversionUtilR4 extends FhirConversionUtil<Bundle, Immunizatio
 		return record;
 	}
 
-	/**
-	 * Converts a FHIR Patient resource into an EvCPayload.
-	 * <p>
-	 * This method populates the demographic information of the EvCPayload
-	 * from the FHIR Patient resource.
-	 * </p>
-	 *
-	 * @param patient The FHIR Patient resource to convert.
-	 * @return An EvCPayload object populated with patient data.
-	 */
 	@Override
-	public CLVRPayload toEvCPayload(Patient patient) {
+	public CLVRPayload toCLVRPayload(Patient patient) {
 		CLVRPayload payload = new CLVRPayload();
 
 		// Set version
@@ -108,14 +86,14 @@ public class FhirConversionUtilR4 extends FhirConversionUtil<Bundle, Immunizatio
 		// Populate name
 		if (patient.hasName()) {
 			HumanName fhirName = patient.getNameFirstRep();
-			Name evcName = new Name();
+			CLVRName clvrName = new CLVRName();
 			if (fhirName.hasFamily()) {
-				evcName.setFamilyName(fhirName.getFamily());
+				clvrName.setFamilyName(fhirName.getFamily());
 			}
 			if (fhirName.hasGiven()) {
-				evcName.setGivenName(fhirName.getGivenAsSingleString());
+				clvrName.setGivenName(fhirName.getGivenAsSingleString());
 			}
-			payload.setName(evcName);
+			payload.setName(clvrName);
 		}
 
 		// Populate date of birth
@@ -145,16 +123,6 @@ public class FhirConversionUtilR4 extends FhirConversionUtil<Bundle, Immunizatio
 		return payload;
 	}
 
-	/**
-	 * Converts a FHIR IPS Bundle resource to an EvCPayload.
-	 * <p>
-	 * This method extracts patient and immunization data from the bundle
-	 * to create the EvCPayload.
-	 * </p>
-	 *
-	 * @param ipsBundle The FHIR IPS Bundle resource to convert.
-	 * @return An EvCPayload object containing the data from the bundle.
-	 */
 	@Override
 	public CLVRPayload toCLVRPayloadFromBundle(Bundle ipsBundle) {
 		Patient patient = null;
@@ -175,14 +143,14 @@ public class FhirConversionUtilR4 extends FhirConversionUtil<Bundle, Immunizatio
 		}
 
 		// Create the EvC Payload and populate patient data
-		CLVRPayload payload = toEvCPayload(patient);
+		CLVRPayload payload = toCLVRPayload(patient);
 
 		// Convert and add immunization records
-		List<VaccinationRecord> vaccinationRecords = new ArrayList<>();
+		List<CLVRVaccinationRecord> CLVRVaccinationRecords = new ArrayList<>();
 		for (Immunization immunization : immunizations) {
-			vaccinationRecords.add(toVaccinationRecord(immunization, patient));
+			CLVRVaccinationRecords.add(toVaccinationRecord(immunization, patient));
 		}
-		payload.setVaccinationRecords(vaccinationRecords);
+		payload.setVaccinationRecords(CLVRVaccinationRecords);
 
 		return payload;
 	}
