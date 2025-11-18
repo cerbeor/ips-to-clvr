@@ -1,6 +1,5 @@
 package org.immregitries.clvr.mapping;
 
-import ca.uhn.fhir.util.StreamUtil;
 import com.syadem.nuva.Vaccine;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.*;

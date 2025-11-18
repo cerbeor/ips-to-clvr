@@ -10,13 +10,8 @@ import org.immregitries.clvr.model.CLVRVaccinationRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
-
-import static org.immregitries.clvr.mapping.MappingHelper.MRN_TYPE_VALUE;
 
 public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunization, Patient> {
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -25,18 +20,6 @@ public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunizatio
         super(nuvaService);
     }
 
-    /**
-     * Converts a FHIR Immunization resource into an EvC VaccinationRecord.
-     * <p>
-     * This method assumes the FHIR resource contains the necessary data points
-     * to populate the VaccinationRecord object. It uses the `meta.profile` to determine
-     * the registry code and extracts other information from the resource.
-     * </p>
-     *
-     * @param immunization The FHIR Immunization resource to convert.
-     * @param patient      The FHIR Patient resource to calculate age from.
-     * @return A VaccinationRecord object populated with data from the FHIR resource.
-     */
     @Override
     public CLVRVaccinationRecord toVaccinationRecord(Immunization immunization, Patient patient) {
         CLVRVaccinationRecord record = new CLVRVaccinationRecord();
@@ -67,16 +50,15 @@ public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunizatio
 
         try {
             record.setRepositoryIndex(immunization.getIdElement().getIdPartAsBigDecimal().intValue());
-        } catch (NumberFormatException ignored) {
-        }
+        } catch (NumberFormatException ignored) {}
 
-
-        // TODO support more codes like snomed
-        Coding cvxCoding = org.immregitries.clvr.mapping.MappingHelper.filterCodeableConcept(immunization.getVaccineCode(), MappingHelper.CVX_SYSTEM);
-        if (cvxCoding.hasCode()) {
-            Optional<Vaccine> byCvx = getNuvaService().findByCvx(cvxCoding.getCode());
-            byCvx.ifPresent(vaccine -> record.setNuvaCode(vaccine.getCode()));
-        }
+        /**
+         * Using Stream to avoid useless queries on NUVA, using a constant Map for to look for mappings
+         */
+        Optional<Vaccine> nuvaSearchResult = SYSTEM_NUVA_MAP.entrySet().stream()
+                .map(entry -> getNuvaVaccine(immunization, entry.getKey(), entry.getValue()))
+                .findFirst().orElse(Optional.empty());
+        nuvaSearchResult.ifPresent(vaccine -> record.setNuvaCode(vaccine.getCode()));
 
         // Calculate age in days (a)
         if (immunization.hasOccurrenceDateTimeType() && patient.hasBirthDate()) {
@@ -90,16 +72,14 @@ public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunizatio
         return record;
     }
 
-    /**
-     * Converts a FHIR Patient resource into an EvCPayload.
-     * <p>
-     * This method populates the demographic information of the EvCPayload
-     * from the FHIR Patient resource.
-     * </p>
-     *
-     * @param patient The FHIR Patient resource to convert.
-     * @return An EvCPayload object populated with patient data.
-     */
+    private Optional<Vaccine> getNuvaVaccine(Immunization immunization, String system, String nuvaNomenclature) {
+        Coding coding = MappingHelper.filterCodeableConcept(immunization.getVaccineCode(), system);
+        if (coding.hasCode()) {
+            return getNuvaService().findByCode(coding.getCode(), nuvaNomenclature);
+        }
+        return Optional.empty();
+    }
+
     @Override
     public CLVRPayload toCLVRPayload(Patient patient) {
         CLVRPayload payload = new CLVRPayload();
@@ -110,14 +90,14 @@ public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunizatio
         // Populate name
         if (patient.hasName()) {
             HumanName fhirName = patient.getNameFirstRep();
-            CLVRName evcCLVRName = new CLVRName();
+            CLVRName clvrName = new CLVRName();
             if (fhirName.hasFamily()) {
-                evcCLVRName.setFamilyName(fhirName.getFamily());
+                clvrName.setFamilyName(fhirName.getFamily());
             }
             if (fhirName.hasGiven()) {
-                evcCLVRName.setGivenName(fhirName.getGivenAsSingleString());
+                clvrName.setGivenName(fhirName.getGivenAsSingleString());
             }
-            payload.setName(evcCLVRName);
+            payload.setName(clvrName);
         }
 
         // Populate date of birth
@@ -126,20 +106,20 @@ public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunizatio
         }
 
         // Populate person identifier (pid) if available, TODO functionality to choose Identifier
-        if (patient.hasIdentifier()) {
-            Identifier fhirIdentifier = patient.getIdentifier().stream()
-                    .filter(businessIdentifier -> MRN_TYPE_VALUE.equals(businessIdentifier.getType().getCodingFirstRep().getCode()))
-                    .findFirst()
-                    .orElse(patient.getIdentifierFirstRep());
-//            Perso=dentifier evcId = new PersonIdentifier();
-//            if (fhirIdentifier.hasSystem()) {
-//                evcId.setObjectIdentifier(fhirIdentifier.getSystem());
-//            }
-//            if (fhirIdentifier.hasValue()) {
-//                evcId.setId(fhirIdentifier.getValue());
-//            }
-//            payload.setPersonIdentifier(evcId);
-        }
+//		if (patient.hasIdentifier()) {
+//			Identifier fhirIdentifier = patient.getIdentifier().stream()
+//				.filter(businessIdentifier -> MRN_TYPE_VALUE.equals(businessIdentifier.getType().getCodingFirstRep().getCode()))
+//				.findFirst()
+//				.orElse(patient.getIdentifierFirstRep());
+//			PersonIdentifier evcId = new PersonIdentifier();
+//			if (fhirIdentifier.hasSystem()) {
+//				evcId.setObjectIdentifier(fhirIdentifier.getSystem());
+//			}
+//			if (fhirIdentifier.hasValue()) {
+//				evcId.setId(fhirIdentifier.getValue());
+//			}
+//			payload.setPersonIdentifier(evcId);
+//		}
 
         // Initialize vaccination records list
         payload.setVaccinationRecords(new ArrayList<>());
@@ -147,16 +127,6 @@ public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunizatio
         return payload;
     }
 
-    /**
-     * Converts a FHIR IPS Bundle resource to an EvCPayload.
-     * <p>
-     * This method extracts patient and immunization data from the bundle
-     * to create the EvCPayload.
-     * </p>
-     *
-     * @param ipsBundle The FHIR IPS Bundle resource to convert.
-     * @return An EvCPayload object containing the data from the bundle.
-     */
     @Override
     public CLVRPayload toCLVRPayloadFromBundle(Bundle ipsBundle) {
         Patient patient = null;
