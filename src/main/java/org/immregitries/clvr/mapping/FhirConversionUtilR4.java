@@ -1,5 +1,6 @@
 package org.immregitries.clvr.mapping;
 
+import ca.uhn.fhir.util.StreamUtil;
 import com.syadem.nuva.Vaccine;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.*;
@@ -10,10 +11,7 @@ import org.immregitries.clvr.model.CLVRVaccinationRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class FhirConversionUtilR4 extends FhirConversionUtil<Bundle, Immunization, Patient> {
@@ -53,16 +51,15 @@ public class FhirConversionUtilR4 extends FhirConversionUtil<Bundle, Immunizatio
 
 		try {
 			record.setRepositoryIndex(immunization.getIdElement().getIdPartAsBigDecimal().intValue());
-		} catch (NumberFormatException ignored) {
-		}
+		} catch (NumberFormatException ignored) {}
 
-
-		// TODO support more codes like snomed
-		Coding cvxCoding = org.immregitries.clvr.mapping.MappingHelper.filterCodeableConcept(immunization.getVaccineCode(), MappingHelper.CVX_SYSTEM);
-		if (cvxCoding.hasCode()) {
-			Optional<Vaccine> byCvx = getNuvaService().findByCvx(cvxCoding.getCode());
-			byCvx.ifPresent(vaccine -> record.setNuvaCode(vaccine.getCode()));
-		}
+		/**
+		 * Using Stream to avoid useless queries on NUVA, using a constant Map for to look for mappings
+		 */
+		Optional<Vaccine> nuvaSearchResult = SYSTEM_NUVA_MAP.entrySet().stream()
+				.map(entry -> getNuvaVaccine(immunization, entry.getKey(), entry.getValue()))
+				.findFirst().orElse(Optional.empty());
+		nuvaSearchResult.ifPresent(vaccine -> record.setNuvaCode(vaccine.getCode()));
 
 		// Calculate age in days (a)
 		if (immunization.hasOccurrenceDateTimeType() && patient.hasBirthDate()) {
@@ -74,6 +71,14 @@ public class FhirConversionUtilR4 extends FhirConversionUtil<Bundle, Immunizatio
 		}
 
 		return record;
+	}
+
+	private Optional<Vaccine> getNuvaVaccine(Immunization immunization, String system, String nuvaNomenclature) {
+		Coding coding = MappingHelper.filterCodeableConcept(immunization.getVaccineCode(), system);
+		if (coding.hasCode()) {
+			return getNuvaService().findByCode(coding.getCode(), nuvaNomenclature);
+		}
+		return Optional.empty();
 	}
 
 	@Override

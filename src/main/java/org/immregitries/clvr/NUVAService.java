@@ -16,6 +16,7 @@ public class NUVAService {
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public static final String NUVA_CVX_NOMENCLATURE = "CVX";
+	public static final String NUVA_ATC_NOMENCLATURE = "ATC";
 
 	private final NUVA nuva;
 

@@ -6,6 +6,8 @@ import org.immregitries.clvr.NUVAService;
 import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.CLVRVaccinationRecord;
 
+import java.util.Map;
+
 /**
  * Converts FHIR Bundle to
  * @param <Bundle>  HAPIFHIR Bundle class
@@ -17,6 +19,14 @@ public abstract class FhirConversionUtil<Bundle extends IBaseBundle, Immunizatio
     public static final String COUNTRY_ORIGIN_SYSTEM = "http://hl7.org/fhir/ValueSet/country";
     public static final String REPOSITORY_INDEX_SYSTEM = "repositoryIndexCoding";
     public static final String REFERENCE_SYSTEM = "reference";
+
+    // TODO support more codes like snomed
+    /**
+     * Map for scanning of NUVA and searching of equivalent code, with <FHIR System, equivalent NUVA Nomenclature Code> an example is <"http://hl7.org/fhir/sid/cvx", "CVX">
+     */
+    public static final Map<String, String> SYSTEM_NUVA_MAP = Map.of(MappingHelper.CVX_SYSTEM, NUVAService.NUVA_CVX_NOMENCLATURE,
+            MappingHelper.ATC_SYSTEM, NUVAService.NUVA_ATC_NOMENCLATURE,
+            MappingHelper.IPS_ATC_SYSTEM, NUVAService.NUVA_ATC_NOMENCLATURE);
 
     public NUVAService getNuvaService() {
         return nuvaService;
