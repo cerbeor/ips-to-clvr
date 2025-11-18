@@ -15,7 +15,9 @@ public class MappingHelper {
 
 	public static final String CVX_SYSTEM = "http://hl7.org/fhir/sid/cvx";
 	public static final String ATC_SYSTEM = "http://www.whocc.no/atc";
-	public static final String IPS_ATC_SYSTEM = "http://hl7.org/fhir/uv/ips/ValueSet/vaccines-whoatc-uv-ips";
+	public static final String IPS_ATC_SYSTEM = "http://hl7.org/fhir/uv/ips/ValueSet/vaccines-whoatc-uv-ips"; // extends ATC
+	public static final String SCT_SYSTEM = "http://snomed.info/sct";
+	public static final String IPS_UV_SYSTEM = "http://hl7.org/fhir/uv/ips/ValueSet/vaccines-uv-ips"; // Extends SCT
 
 
 	public static final String PATIENT = "Patient";

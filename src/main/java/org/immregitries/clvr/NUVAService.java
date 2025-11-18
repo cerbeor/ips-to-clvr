@@ -17,6 +17,7 @@ public class NUVAService {
 
 	public static final String NUVA_CVX_NOMENCLATURE = "CVX";
 	public static final String NUVA_ATC_NOMENCLATURE = "ATC";
+	public static final String NUVA_SCT_NOMENCLATURE = "SNOMED-CT";
 
 	private final NUVA nuva;
 

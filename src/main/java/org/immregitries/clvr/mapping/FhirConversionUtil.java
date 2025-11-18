@@ -26,7 +26,10 @@ public abstract class FhirConversionUtil<Bundle extends IBaseBundle, Immunizatio
      */
     public static final Map<String, String> SYSTEM_NUVA_MAP = Map.of(MappingHelper.CVX_SYSTEM, NUVAService.NUVA_CVX_NOMENCLATURE,
             MappingHelper.ATC_SYSTEM, NUVAService.NUVA_ATC_NOMENCLATURE,
-            MappingHelper.IPS_ATC_SYSTEM, NUVAService.NUVA_ATC_NOMENCLATURE);
+            MappingHelper.IPS_ATC_SYSTEM, NUVAService.NUVA_ATC_NOMENCLATURE,
+            MappingHelper.IPS_UV_SYSTEM, NUVAService.NUVA_SCT_NOMENCLATURE,
+            MappingHelper.SCT_SYSTEM, NUVAService.NUVA_SCT_NOMENCLATURE
+    );
 
     public NUVAService getNuvaService() {
         return nuvaService;

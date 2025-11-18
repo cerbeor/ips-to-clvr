@@ -172,19 +172,32 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
 
         PDImageXObject qrCodeImageObject;
         int qr_width = 300; // Desired QR code width
-        int qr_height = 300; // Desired QR code height
+        // Desired QR code height
         int qr_x = 150;
         int qr_y = 50;
+
+        /*
+        Printing black square before QR code to generate a border around the readable area
+         */
         {
-            BitMatrix bitMatrix = CompressionUtil.qrCodeBitMatrix(new String(qrCode), qr_width, qr_height);
+            int border_length = 2;
+            BitMatrix black = new BitMatrix(qr_width + border_length * 2, qr_width + border_length * 2);
+            black.flip();
+            BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(black);
+            qrCodeImageObject = LosslessFactory.createFromImage(document, bufferedImage);
+            content.drawImage(qrCodeImageObject, qr_x - border_length , qr_y - border_length);
+        }
+        {
+            BitMatrix bitMatrix = CompressionUtil.qrCodeBitMatrix(new String(qrCode), qr_width, qr_width);
             BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
             qrCodeImageObject = LosslessFactory.createFromImage(document, bufferedImage);
             content.drawImage(qrCodeImageObject, qr_x, qr_y);
-        }
-        // CLVR SVG
 
+        }
+
+        // CLVR SVG
         PDImageXObject clvrLogoImage = PDImageXObject.createFromFile(CLVR_PNG, document);
-        content.drawImage(clvrLogoImage, qr_x, qr_y + qr_height);
+        content.drawImage(clvrLogoImage, qr_x, qr_y + qr_width);
 
         // Footer text
         content.beginText();
