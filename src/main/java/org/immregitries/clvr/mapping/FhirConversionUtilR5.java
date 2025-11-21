@@ -2,6 +2,7 @@ package org.immregitries.clvr.mapping;
 
 import com.syadem.nuva.Vaccine;
 import org.apache.commons.lang3.StringUtils;
+import org.hl7.fhir.instance.model.api.IBaseCoding;
 import org.hl7.fhir.r5.model.*;
 import org.immregitries.clvr.NUVAService;
 import org.immregitries.clvr.model.CLVRPayload;
@@ -22,7 +23,25 @@ public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunizatio
 
     @Override
     public CLVRVaccinationRecord toVaccinationRecord(Immunization immunization, Patient patient) {
-        CLVRVaccinationRecord record = new CLVRVaccinationRecord();
+        CLVRVaccinationRecord vaccinationRecord = new CLVRVaccinationRecord();
+
+        // Current way SYADEM deals with the report
+
+        for (Identifier identifier: immunization.getIdentifier()) {
+            // based on sample found in tool
+            // "identifier": [
+            // {
+            //  "system": "http://EVC/MasterRecord",
+            //  "value\": "FRA/36/2021-05-05/1245"
+            //  }
+            // ]
+            if (EVC_MASTER_RECORD.equals(identifier.getSystem())) {
+                String[] strings = identifier.getValue().split("/");
+                vaccinationRecord.setRegistryCode(strings[0]);
+                vaccinationRecord.setRepositoryIndex(Integer.parseInt(strings[1]));
+                vaccinationRecord.setReference(Integer.parseInt(strings[3]));
+            }
+        }
 
         CodeableConcept immunizationReportOrigin = immunization.getInformationSource().getConcept();
         // TODO map for registry of registries
@@ -32,33 +51,34 @@ public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunizatio
             Coding countryCoding = MappingHelper.filterCodeableConcept(immunizationReportOrigin, COUNTRY_ORIGIN_SYSTEM);
             if (countryCoding.hasCode()) {
                 // TODO make a Registry of Registries to identify country with FHIR ReportOrigin
-                countryCoding.setCode(countryCoding.getCode());
+                vaccinationRecord.setRegistryCode(countryCoding.getCode());
             }
             Coding repositoryIndexCoding = MappingHelper.filterCodeableConcept(immunizationReportOrigin, REPOSITORY_INDEX_SYSTEM);
             if (repositoryIndexCoding.hasCode()) {
-                record.setRepositoryIndex(Integer.parseInt(repositoryIndexCoding.getCode()));
+                vaccinationRecord.setRepositoryIndex(Integer.parseInt(repositoryIndexCoding.getCode()));
             }
             Coding reference = MappingHelper.filterCodeableConcept(immunizationReportOrigin, REFERENCE_SYSTEM);
             if (reference.hasCode()) {
-                record.setReference(Integer.parseInt(reference.getCode()));
+                vaccinationRecord.setReference(Integer.parseInt(reference.getCode()));
             }
             //Arbitrary value, since IIs sandbox is in no registry info
-            if (StringUtils.isBlank(record.getRegistryCode())) {
-                record.setRegistryCode("USA");
+            if (StringUtils.isBlank(vaccinationRecord.getRegistryCode())) {
+                vaccinationRecord.setRegistryCode("USA");
             }
         }
 
         try {
-            record.setRepositoryIndex(immunization.getIdElement().getIdPartAsBigDecimal().intValue());
+            if (vaccinationRecord.getReference() == 0) {
+                vaccinationRecord.setReference(immunization.getIdElement().getIdPartAsBigDecimal().intValue());
+            }
         } catch (NumberFormatException ignored) {}
 
-        /**
+
+        /*
          * Using Stream to avoid useless queries on NUVA, using a constant Map for to look for mappings
          */
-        Optional<Vaccine> nuvaSearchResult = SYSTEM_NUVA_MAP.entrySet().stream()
-                .map(entry -> getNuvaVaccine(immunization, entry.getKey(), entry.getValue()))
-                .findFirst().orElse(Optional.empty());
-        nuvaSearchResult.ifPresent(vaccine -> record.setNuvaCode(vaccine.getCode()));
+        Optional<Vaccine> nuvaSearchResult = getNuvaSearchResult(immunization.getVaccineCode().getCoding());
+        nuvaSearchResult.ifPresent(vaccine -> vaccinationRecord.setNuvaCode(vaccine.getCode()));
 
         // Calculate age in days (a)
         if (immunization.hasOccurrenceDateTimeType() && patient.hasBirthDate()) {
@@ -66,18 +86,10 @@ public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunizatio
             Date birthDate = patient.getBirthDate();
             long diffInMillies = Math.abs(immunizationDate.getTime() - birthDate.getTime());
             long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-            record.setAgeInDays((int) diff);
+            vaccinationRecord.setAgeInDays((int) diff);
         }
 
-        return record;
-    }
-
-    private Optional<Vaccine> getNuvaVaccine(Immunization immunization, String system, String nuvaNomenclature) {
-        Coding coding = MappingHelper.filterCodeableConcept(immunization.getVaccineCode(), system);
-        if (coding.hasCode()) {
-            return getNuvaService().findByCode(coding.getCode(), nuvaNomenclature);
-        }
-        return Optional.empty();
+        return vaccinationRecord;
     }
 
     @Override

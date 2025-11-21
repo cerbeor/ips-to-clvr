@@ -47,3 +47,8 @@ Clone the repository and build the project using Maven:
 git clone [YOUR_REPOSITORY_URL]
 cd ips-to-clvr
 mvn clean install
+```
+
+---
+## Incoming
+FHIR IPS Sub profile formalizing the concepts necessary in CLVR (Country, RepositoryIndex,...)

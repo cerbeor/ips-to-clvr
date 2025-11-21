@@ -4,14 +4,19 @@ import ca.uhn.fhir.context.FhirContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.hl7.fhir.r4.model.Bundle;
 import org.immregitries.clvr.mapping.FhirConversionUtilR4;
+import org.immregitries.clvr.mapping.FhirConversionUtilR5;
 import org.immregitries.clvr.model.CLVRPayload;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 class FhirConversionUtilTest extends BaseCLVRTest {
 
-    public static final String IPS_SAMPLE = "{\n" +
+    public static final String IPS_SAMPLE_R4_BUNDLE = "{\n" +
             "  \"resourceType\": \"Bundle\",\n" +
             "  \"type\": \"collection\",\n" +
             "  \"entry\": [\n" +
@@ -99,37 +104,31 @@ class FhirConversionUtilTest extends BaseCLVRTest {
             "    }\n" +
             "  ]\n" +
             "}\n";
-    private FhirConversionUtilR4 fhirConversionUtilImpl;
-    private FhirContext fhirContext = FhirContext.forR4();
+
+    private FhirConversionUtilR4 fhirConversionUtilR4;
+    private FhirConversionUtilR5 fhirConversionUtilR5;
+    private FhirContext fhirContextR4;
+    private FhirContext fhirContextR5;
 
     public FhirConversionUtilTest() throws IOException {
         super();
-        fhirConversionUtilImpl = new FhirConversionUtilR4(nuvaService);
+        fhirContextR4 = FhirContext.forR4();
+        fhirConversionUtilR4 = new FhirConversionUtilR4(nuvaService);
+//        fhirContextR5 = FhirContext.forR5();
+//        fhirConversionUtilR5 = new FhirConversionUtilR5(nuvaService);
     }
-
-    @Test
-    void toCLVRPayload() {
-    }
-
-
-
-    @Test
-    void toVaccinationRecord() {
-
-    }
-
 
     /**
      * Currently invalid as the Registry identifier is maybe bound to change in its FHIR representation
      * @throws JsonProcessingException
      */
     @Test
-    void toCLVRPayloadFromBundle() throws JsonProcessingException {
-        String ipsSample = IPS_SAMPLE;
+    void toCLVRPayloadFromBundleR4() throws JsonProcessingException {
+        String ipsSample = IPS_SAMPLE_R4_BUNDLE;
         String testSample = TEST_SAMPLE;
-        Bundle bundle = fhirContext.newJsonParser().parseResource(Bundle.class, ipsSample);
-        CLVRPayload clvrPayloadFromBundle = fhirConversionUtilImpl.toCLVRPayloadFromBundle(bundle);
-//        assertNotNull(clvrPayloadFromBundle);
-//        assertEquals(clvrPayloadFromBundle.toString(), objectMapper.readValue(testSample,CLVRPayload.class).toString());
+        Bundle bundle = fhirContextR4.newJsonParser().parseResource(Bundle.class, ipsSample);
+        CLVRPayload clvrPayloadFromBundle = fhirConversionUtilR4.toCLVRPayloadFromBundle(bundle);
+        Assertions.assertNotNull(clvrPayloadFromBundle);
+        Assertions.assertEquals(objectMapper.readValue(testSample, CLVRPayload.class).toString(), clvrPayloadFromBundle.toString());
     }
 }

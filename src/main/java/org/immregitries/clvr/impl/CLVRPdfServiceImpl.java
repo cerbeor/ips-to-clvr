@@ -183,9 +183,9 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
             int border_length = 2;
             BitMatrix black = new BitMatrix(qr_width + border_length * 2, qr_width + border_length * 2);
             black.flip();
-            BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(black);
-            qrCodeImageObject = LosslessFactory.createFromImage(document, bufferedImage);
-            content.drawImage(qrCodeImageObject, qr_x - border_length , qr_y - border_length);
+            BufferedImage bufferedBlackImage = MatrixToImageWriter.toBufferedImage(black);
+            PDImageXObject pdImageXObject = LosslessFactory.createFromImage(document, bufferedBlackImage);
+            content.drawImage(pdImageXObject, qr_x - border_length , qr_y - border_length);
         }
         {
             BitMatrix bitMatrix = CompressionUtil.qrCodeBitMatrix(new String(qrCode), qr_width, qr_width);

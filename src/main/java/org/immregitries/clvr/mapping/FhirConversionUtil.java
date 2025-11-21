@@ -1,12 +1,18 @@
 package org.immregitries.clvr.mapping;
 
+import com.syadem.nuva.Vaccine;
 import org.hl7.fhir.instance.model.api.IBaseBundle;
+import org.hl7.fhir.instance.model.api.IBaseCoding;
 import org.hl7.fhir.instance.model.api.IDomainResource;
 import org.immregitries.clvr.NUVAService;
 import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.CLVRVaccinationRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Converts FHIR Bundle to
@@ -15,16 +21,22 @@ import java.util.Map;
  * @param <Patient> HAPIFHIR Patient Class
  */
 public abstract class FhirConversionUtil<Bundle extends IBaseBundle, Immunization extends IDomainResource, Patient extends IDomainResource> {
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
     public static final String IMMUNIZATION_ORIGIN_EXTENDED = "http://hl7.org/fhir/ValueSet/immunization-origin";
     public static final String COUNTRY_ORIGIN_SYSTEM = "http://hl7.org/fhir/ValueSet/country";
     public static final String REPOSITORY_INDEX_SYSTEM = "repositoryIndexCoding";
     public static final String REFERENCE_SYSTEM = "reference";
 
+    public static final String EVC_MASTER_RECORD = "http://EVC/MasterRecord";
+
+
     // TODO support more codes like snomed
     /**
      * Map for scanning of NUVA and searching of equivalent code, with <FHIR System, equivalent NUVA Nomenclature Code> an example is <"http://hl7.org/fhir/sid/cvx", "CVX">
      */
-    public static final Map<String, String> SYSTEM_NUVA_MAP = Map.of(MappingHelper.CVX_SYSTEM, NUVAService.NUVA_CVX_NOMENCLATURE,
+    public static final Map<String, String> SYSTEM_NUVA_MAP = Map.of(
+            NUVAService.NUVA_SYSTEM, NUVAService.NUVA_NOMENCLATURE,
+            MappingHelper.CVX_SYSTEM, NUVAService.NUVA_CVX_NOMENCLATURE,
             MappingHelper.ATC_SYSTEM, NUVAService.NUVA_ATC_NOMENCLATURE,
             MappingHelper.IPS_ATC_SYSTEM, NUVAService.NUVA_ATC_NOMENCLATURE,
             MappingHelper.IPS_UV_SYSTEM, NUVAService.NUVA_SCT_NOMENCLATURE,
@@ -41,6 +53,21 @@ public abstract class FhirConversionUtil<Bundle extends IBaseBundle, Immunizatio
         this.nuvaService = nuvaService;
     }
 
+    public Optional<Vaccine> getNuvaSearchResult(List<? extends IBaseCoding> codingList) {
+        return SYSTEM_NUVA_MAP.entrySet().stream()
+                .map(entry -> getNuvaVaccine(codingList, entry.getKey(), entry.getValue()))
+                .filter(Optional::isPresent)
+                .findFirst().orElse(Optional.empty());
+    }
+
+    public Optional<Vaccine> getNuvaVaccine(List<? extends IBaseCoding> codings, String system, String nuvaNomenclature) {
+//        codings.stream().forEach(coding -> logger.info("coding system  {} {} {}", coding.getSystem(), system,system.equals( coding.getSystem()) ));
+        Optional<? extends IBaseCoding> coding = MappingHelper.filterCodingList(codings, system);
+        if (coding.isPresent()) {
+            return getNuvaService().findByCode(coding.get().getCode(), nuvaNomenclature);
+        }
+        return Optional.empty();
+    }
 
     /**
      * Converts a FHIR IPS Bundle resource to an CLVRPayload.

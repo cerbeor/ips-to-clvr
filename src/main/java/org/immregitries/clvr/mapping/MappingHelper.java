@@ -3,11 +3,14 @@ package org.immregitries.clvr.mapping;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.exceptions.FHIRException;
+import org.hl7.fhir.instance.model.api.IBaseCoding;
 import org.hl7.fhir.r5.model.*;
 
+import javax.swing.text.html.Option;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public class MappingHelper {
 	public static final String MRN_TYPE_VALUE = "MR";
@@ -122,6 +125,10 @@ public class MappingHelper {
 	}
 	public static org.hl7.fhir.r5.model.Coding filterCodeableConcept(org.hl7.fhir.r5.model.CodeableConcept concept, String system) {
 		return filterCodingListR5(concept.getCoding(), system);
+	}
+
+	public static Optional<? extends IBaseCoding> filterCodingList(List<? extends IBaseCoding> codings, String system) {
+		return codings.stream().filter(coding -> coding.getSystem().equals(system)).findFirst();
 	}
 
 	public static org.hl7.fhir.r4.model.Coding filterCodingListR4(List<org.hl7.fhir.r4.model.Coding> codings, String system) {
