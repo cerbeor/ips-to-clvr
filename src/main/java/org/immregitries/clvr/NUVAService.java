@@ -25,7 +25,7 @@ public class NUVAService {
 
 	private final NUVA nuva;
 
-	public NUVAService(NUVA nuva) throws IOException {
+	public NUVAService(NUVA nuva) {
 		this.nuva = nuva;
 	}
 

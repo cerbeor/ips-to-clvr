@@ -3,6 +3,7 @@ package org.immregitries.clvr;
 import ca.uhn.fhir.context.FhirContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.hl7.fhir.r4.model.Bundle;
+import org.immregitries.clvr.mapping.FhirConversionUtil;
 import org.immregitries.clvr.mapping.FhirConversionUtilR4;
 import org.immregitries.clvr.mapping.FhirConversionUtilR5;
 import org.immregitries.clvr.model.CLVRPayload;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static org.immregitries.clvr.mapping.FhirConversionUtil.COUNTRY_ORIGIN_SYSTEM;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -80,12 +82,6 @@ class FhirConversionUtilTest extends BaseCLVRTest {
             "        },\n" +
             "        \"id\": \"2\",\n" +
             "        \"resourceType\": \"Immunization\",\n" +
-            "        \"identifier\": [\n" +
-            "          {\n" +
-            "            \"system\": \"http://EVC/MasterRecord\",\n" +
-            "            \"value\": \"FRA/36/2022-03-03/127\"\n" +
-            "          }\n" +
-            "        ],\n" +
             "        \"status\": \"completed\",\n" +
             "        \"vaccineCode\": {\n" +
             "          \"coding\": [\n" +
@@ -93,6 +89,23 @@ class FhirConversionUtilTest extends BaseCLVRTest {
             "              \"system\": \"urn:oid:1.3.6.1.4.1.48601.1.1.1\",\n" +
             "              \"code\": \"VAC0644\",\n" +
             "              \"display\": \"QDENGA\"\n" +
+            "            }\n" +
+            "          ]\n" +
+            "        },\n" +
+            "        \"reportOrigin\": {\n" +
+            "          \"coding\": [\n" +
+            "            {\n" +
+            "              \"system\": \"" + COUNTRY_ORIGIN_SYSTEM + "\",\n" +
+            "              \"code\": \"FRA\",\n" +
+            "              \"display\": \"FRANCE\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"system\": \"" + FhirConversionUtil.REPOSITORY_INDEX_SYSTEM + "\",\n" +
+            "              \"code\": \"36\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"system\": \"" + FhirConversionUtil.REFERENCE_SYSTEM + "\",\n" +
+            "              \"code\": \"127\"\n" +
             "            }\n" +
             "          ]\n" +
             "        },\n" +
