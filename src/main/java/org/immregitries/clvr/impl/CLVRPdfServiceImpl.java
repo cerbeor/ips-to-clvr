@@ -220,7 +220,7 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
         content.beginText();
         content.setFont(oblique, 10);
         content.newLineAtOffset(margin, 30);
-        content.showText("Generated on: " + LocalDate.now() + " by " + creator);
+        content.showText("Generated on: " + new Date(token.getIssuedTime()) + " by " + creator);
         content.endText();
 
         // Close everything

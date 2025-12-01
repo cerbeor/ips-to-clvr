@@ -12,7 +12,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.immregitries.clvr.mapping.FhirConversionUtil.COUNTRY_ORIGIN_SYSTEM;
+import static org.immregitries.clvr.mapping.FhirSystems.*;
+
 
 class FhirConversionUtilTest extends BaseCLVRTest {
 
@@ -98,11 +99,11 @@ class FhirConversionUtilTest extends BaseCLVRTest {
             "              \"display\": \"FRANCE\"\n" +
             "            },\n" +
             "            {\n" +
-            "              \"system\": \"" + FhirConversionUtil.REPOSITORY_INDEX_SYSTEM + "\",\n" +
+            "              \"system\": \"" + REPOSITORY_INDEX_SYSTEM + "\",\n" +
             "              \"code\": \"36\"\n" +
             "            },\n" +
             "            {\n" +
-            "              \"system\": \"" + FhirConversionUtil.REFERENCE_SYSTEM + "\",\n" +
+            "              \"system\": \"" + REFERENCE_SYSTEM + "\",\n" +
             "              \"code\": \"127\"\n" +
             "            }\n" +
             "          ]\n" +
