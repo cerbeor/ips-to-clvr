@@ -35,16 +35,17 @@ public class CLVRToken extends AbstractCLVRComponent {
      * Constructor with default values
      *
      * @param clvrPayload
+     * @param issuer
      */
-    public CLVRToken(CLVRPayload clvrPayload) {
-        this.issuer = "SYA";
+    public CLVRToken(CLVRPayload clvrPayload, String issuer) {
+        this.issuer = issuer;
         this.issuedTime = Instant.now().getEpochSecond();
         this.expirationTime = issuedTime + DEFAULT_VALIDITY_TIME;
         this.clvrPayload = clvrPayload;
     }
 
     /**
-     * Contructor with only issued time set
+     * Constructor with only issued time set
      */
     public CLVRToken() {
         this.issuedTime = Instant.now().getEpochSecond();

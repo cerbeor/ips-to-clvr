@@ -13,8 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.immregitries.clvr.BaseCLVRTest.TEST_SAMPLE;
-import static org.immregitries.clvr.BaseCLVRTest.TEST_SAMPLE_QR;
+import static org.immregitries.clvr.BaseCLVRTest.*;
 
 class CLVRPdfUtilTest {
     private NUVAService nuvaService;
@@ -29,7 +28,7 @@ class CLVRPdfUtilTest {
     @Test
     void createPdf() throws IOException, WriterException {
         CLVRPayload payload =  objectMapper.readValue(TEST_SAMPLE, CLVRPayload.class);
-        CLVRToken clvrToken = new CLVRToken(payload);
+        CLVRToken clvrToken = new CLVRToken(payload, TEST_ISSUER);
         PDDocument pdDocument = clvrPdfService.createPdf(clvrToken, TEST_SAMPLE_QR.getBytes(), "Unit test");
         printPdf(pdDocument,"unit-test-pdf");
     }

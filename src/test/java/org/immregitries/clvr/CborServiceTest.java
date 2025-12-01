@@ -36,7 +36,7 @@ class CborServiceTest extends BaseCLVRTest {
     }
 
     void testCborConsistence(CLVRPayload payload) {
-        testCborConsistence(new CLVRToken(payload));
+        testCborConsistence(new CLVRToken(payload, "SYA"));
     }
     void testCborConsistence(CLVRToken clvrToken) {
         try {

@@ -53,7 +53,7 @@ class QrCodeServiceTest extends BaseCLVRTest {
     }
 
     void testQrCodeConsistence(CLVRPayload payload) throws Exception {
-        byte[] cbor = cborService.toCbor(new CLVRToken(payload));
+        byte[] cbor = cborService.toCbor(new CLVRToken(payload, "SYA"));
         KeyPair keyPair = testKeyPairManager.getOrCreateKeyPair(TEST_KEY_FILE_NAME);
         byte[] coseSign1 = signingService.createCoseSign1(cbor, keyPair);
         byte[] deflated = CompressionUtil.deflate(coseSign1, NOWRAP);
