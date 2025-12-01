@@ -16,18 +16,13 @@ import java.util.Optional;
 
 /**
  * Converts FHIR Bundle to
- * @param <Bundle>  HAPIFHIR Bundle class
+ *
+ * @param <Bundle>       HAPIFHIR Bundle class
  * @param <Immunization> HAPIFHIR Immunization Class
- * @param <Patient> HAPIFHIR Patient Class
+ * @param <Patient>      HAPIFHIR Patient Class
  */
 public abstract class FhirConversionUtil<Bundle extends IBaseBundle, Immunization extends IDomainResource, Patient extends IDomainResource> {
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
-    public static final String IMMUNIZATION_ORIGIN_EXTENDED = "http://hl7.org/fhir/ValueSet/immunization-origin";
-    public static final String COUNTRY_ORIGIN_SYSTEM = "http://hl7.org/fhir/ValueSet/country";
-    public static final String REPOSITORY_INDEX_SYSTEM = "repositoryIndexCoding";
-    public static final String REFERENCE_SYSTEM = "reference";
-
-    public static final String EVC_MASTER_RECORD = "http://EVC/MasterRecord";
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     // TODO support more codes like snomed
@@ -35,19 +30,19 @@ public abstract class FhirConversionUtil<Bundle extends IBaseBundle, Immunizatio
      * Map for scanning of NUVA and searching of equivalent code, with <FHIR System, equivalent NUVA Nomenclature Code> an example is <"http://hl7.org/fhir/sid/cvx", "CVX">
      */
     public static final Map<String, String> SYSTEM_NUVA_MAP = Map.of(
-            NUVAService.NUVA_SYSTEM, NUVAService.NUVA_NOMENCLATURE,
-            MappingHelper.CVX_SYSTEM, NUVAService.NUVA_CVX_NOMENCLATURE,
-            MappingHelper.ATC_SYSTEM, NUVAService.NUVA_ATC_NOMENCLATURE,
-            MappingHelper.IPS_ATC_SYSTEM, NUVAService.NUVA_ATC_NOMENCLATURE,
-            MappingHelper.IPS_UV_SYSTEM, NUVAService.NUVA_SCT_NOMENCLATURE,
-            MappingHelper.SCT_SYSTEM, NUVAService.NUVA_SCT_NOMENCLATURE
+            NUVASystems.NUVA_SYSTEM, NUVASystems.NUVA_NOMENCLATURE,
+            MappingHelper.CVX_SYSTEM, NUVASystems.NUVA_CVX_NOMENCLATURE,
+            MappingHelper.ATC_SYSTEM, NUVASystems.NUVA_ATC_NOMENCLATURE,
+            MappingHelper.IPS_ATC_SYSTEM, NUVASystems.NUVA_ATC_NOMENCLATURE,
+            MappingHelper.IPS_UV_SYSTEM, NUVASystems.NUVA_SCT_NOMENCLATURE,
+            MappingHelper.SCT_SYSTEM, NUVASystems.NUVA_SCT_NOMENCLATURE
     );
 
     public NUVAService getNuvaService() {
         return nuvaService;
     }
 
-    private NUVAService nuvaService;
+    private final NUVAService nuvaService;
 
     public FhirConversionUtil(NUVAService nuvaService) {
         this.nuvaService = nuvaService;

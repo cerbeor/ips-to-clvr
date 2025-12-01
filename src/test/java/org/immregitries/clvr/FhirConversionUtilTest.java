@@ -13,8 +13,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static org.immregitries.clvr.mapping.FhirConversionUtil.COUNTRY_ORIGIN_SYSTEM;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 class FhirConversionUtilTest extends BaseCLVRTest {
 
@@ -133,12 +131,14 @@ class FhirConversionUtilTest extends BaseCLVRTest {
 
     /**
      * Currently invalid as the Registry identifier is maybe bound to change in its FHIR representation
+     *
      * @throws JsonProcessingException
      */
     @Test
     void toCLVRPayloadFromBundleR4() throws JsonProcessingException {
         String ipsSample = IPS_SAMPLE_R4_BUNDLE;
         String testSample = TEST_SAMPLE;
+//        logger.info(IPS_SAMPLE_R4_BUNDLE);
         Bundle bundle = fhirContextR4.newJsonParser().parseResource(Bundle.class, ipsSample);
         CLVRPayload clvrPayloadFromBundle = fhirConversionUtilR4.toCLVRPayloadFromBundle(bundle);
         Assertions.assertNotNull(clvrPayloadFromBundle);

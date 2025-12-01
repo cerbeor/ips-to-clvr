@@ -36,19 +36,36 @@ import java.util.concurrent.TimeUnit;
 public class CLVRPdfServiceImpl implements CLVRPdfService {
     public static final float TRANSPARENCY_HIGH = 1f;
     public static final float TRANSPARENCY_LOW = 0.6f;
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
-
     public static final String PDF_TEMPLATE_PDF = "src/main/resources/pdf_template.pdf";
     public static final String CLVR_PNG = "src/main/resources/clvr.png";
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private NUVAService nuvaService;
+    private final NUVAService nuvaService;
 
 
     public CLVRPdfServiceImpl(NUVAService nuvaService) {
         this.nuvaService = nuvaService;
+    }
+
+    private static void printLabels(PDPageContentStream content, String english, String french, String spanish, PDType1Font oblique) throws IOException {
+        content.showText(english + " ");
+        content.setFont(oblique, 12);
+        content.setStrokingColor(CLVRPdfServiceImpl.TRANSPARENCY_LOW);
+        content.showText("(" + french + "/");
+        content.showText(spanish + ")");
+        content.setStrokingColor(CLVRPdfServiceImpl.TRANSPARENCY_HIGH);
+    }
+
+    protected static void printPdf(
+            PDDocument pdDocument,
+            String name
+    ) throws IOException {
+        String fileName = StringUtils.substringBefore(name, ".");
+        pdDocument.save(fileName + ".pdf");
+        pdDocument.close();
     }
 
     @Override
@@ -185,7 +202,7 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
             black.flip();
             BufferedImage bufferedBlackImage = MatrixToImageWriter.toBufferedImage(black);
             PDImageXObject pdImageXObject = LosslessFactory.createFromImage(document, bufferedBlackImage);
-            content.drawImage(pdImageXObject, qr_x - border_length , qr_y - border_length);
+            content.drawImage(pdImageXObject, qr_x - border_length, qr_y - border_length);
         }
         {
             BitMatrix bitMatrix = CompressionUtil.qrCodeBitMatrix(new String(qrCode), qr_width, qr_width);
@@ -209,24 +226,6 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
         // Close everything
         content.close();
         return document;
-    }
-
-    private static void printLabels(PDPageContentStream content, String english, String french, String spanish, PDType1Font oblique) throws IOException {
-        content.showText(english + " ");
-        content.setFont(oblique, 12);
-        content.setStrokingColor(CLVRPdfServiceImpl.TRANSPARENCY_LOW);
-        content.showText("("+ french +"/");
-        content.showText(spanish +")");
-        content.setStrokingColor(CLVRPdfServiceImpl.TRANSPARENCY_HIGH);
-    }
-
-    protected static void printPdf(
-            PDDocument pdDocument,
-            String name
-    ) throws IOException {
-        String fileName = StringUtils.substringBefore(name,".");
-		pdDocument.save(fileName + ".pdf");
-        pdDocument.close();
     }
 
 }

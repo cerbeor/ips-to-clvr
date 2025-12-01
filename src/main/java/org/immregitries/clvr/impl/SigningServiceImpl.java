@@ -22,7 +22,7 @@ public class SigningServiceImpl implements SigningService {
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    CBORMapper cborMapper;
+    private CBORMapper cborMapper;
 
     public SigningServiceImpl() {
         this.cborMapper = new CBORMapper();
@@ -61,9 +61,9 @@ public class SigningServiceImpl implements SigningService {
                 .payload(cborPayload)
                 .signature(signature)
                 .build();
-        CBORTaggedItem taggedItem = new CBORTaggedItem(18,sign1);
+        CBORTaggedItem taggedItem = new CBORTaggedItem(18, sign1);
 
-        byte[] encode =  taggedItem.encode();
+        byte[] encode = taggedItem.encode();
         return encode;
     }
 
@@ -86,7 +86,7 @@ public class SigningServiceImpl implements SigningService {
         /*
          * Verify signature
          */
-        if (publicKey != null){
+        if (publicKey != null) {
             COSEVerifier coseVerifier = new COSEVerifier(publicKey);
             boolean verify = false;
             try {
@@ -101,7 +101,7 @@ public class SigningServiceImpl implements SigningService {
          * Removing bytes added through Cose to only get the payload
          */
 //        return bytes;
-		return Arrays.copyOfRange(bytes,2, bytes.length);
+        return Arrays.copyOfRange(bytes, 2, bytes.length);
     }
 
 

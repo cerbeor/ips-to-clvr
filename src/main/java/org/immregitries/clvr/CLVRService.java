@@ -1,7 +1,6 @@
 package org.immregitries.clvr;
 
 import com.authlete.cose.COSEException;
-import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.CLVRToken;
 
 import java.io.IOException;

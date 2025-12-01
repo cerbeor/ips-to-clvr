@@ -29,6 +29,7 @@ public class CLVRToken extends AbstractCLVRComponent {
 
     /**
      * Constructor with default values
+     *
      * @param clvrPayload
      */
     public CLVRToken(CLVRPayload clvrPayload) {
@@ -45,7 +46,6 @@ public class CLVRToken extends AbstractCLVRComponent {
         issuedTime = System.currentTimeMillis() / 1000L;
     }
 
-    ;
     public String getIssuer() {
         return issuer;
     }

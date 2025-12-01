@@ -1,6 +1,5 @@
 package org.immregitries.clvr;
 
-import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.CLVRToken;
 
 import java.io.IOException;
@@ -11,6 +10,7 @@ import java.io.IOException;
 public interface CborService {
     /**
      * Converts to COSE
+     *
      * @param clvrToken
      * @return
      * @throws IOException

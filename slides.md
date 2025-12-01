@@ -167,3 +167,7 @@ Intersection of Code systems
   - It uses a **Reference** to point to the actual **entity** that provided the information (e.g., a reference to the **`Patient`**, **`Practitioner`**, **`RelatedPerson`**, or **`Organization`**).
 
 --- -->
+
+---
+
+Note: Mapping table between NUVA Systems and FHIR/hl7v2 Codeset URLs ?

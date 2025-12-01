@@ -3,7 +3,6 @@ package org.immregitries.clvr.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper;
 import org.immregitries.clvr.CborService;
-import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.CLVRToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +11,8 @@ import java.io.IOException;
 import java.util.zip.DataFormatException;
 
 public class CborServiceImpl implements CborService {
-    Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private final CBORMapper cborMapper = new CBORMapper();
-
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Uses Jackson specification to cborize clvrPayload
@@ -33,7 +30,7 @@ public class CborServiceImpl implements CborService {
 
     @Override
     public CLVRToken undoCbor(byte[] cbor) throws IOException {
-        CLVRToken  clvrToken = cborMapper.readValue(cbor, CLVRToken.class);
+        CLVRToken clvrToken = cborMapper.readValue(cbor, CLVRToken.class);
         return clvrToken;
     }
 }

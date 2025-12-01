@@ -2,17 +2,21 @@ package org.immregitries.clvr.mapping;
 
 import com.syadem.nuva.Vaccine;
 import org.apache.commons.lang3.StringUtils;
-import org.hl7.fhir.instance.model.api.IBaseCoding;
 import org.hl7.fhir.r5.model.*;
 import org.immregitries.clvr.NUVAService;
-import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.CLVRName;
+import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.CLVRVaccinationRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+
+import static org.immregitries.clvr.mapping.FhirSystems.*;
 
 public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunization, Patient> {
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -27,7 +31,7 @@ public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunizatio
 
         // Current way SYADEM deals with the report
 
-        for (Identifier identifier: immunization.getIdentifier()) {
+        for (Identifier identifier : immunization.getIdentifier()) {
             // based on sample found in tool
             // "identifier": [
             // {
@@ -71,7 +75,8 @@ public class FhirConversionUtilR5 extends FhirConversionUtil<Bundle, Immunizatio
             if (vaccinationRecord.getReference() == 0) {
                 vaccinationRecord.setReference(immunization.getIdElement().getIdPartAsBigDecimal().intValue());
             }
-        } catch (NumberFormatException ignored) {}
+        } catch (NumberFormatException ignored) {
+        }
 
 
         /*
