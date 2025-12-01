@@ -4,10 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
-import java.util.Date;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CLVRToken extends AbstractCLVRComponent {
+    // more than 30 days validity
+    public static final long DEFAULT_VALIDITY_TIME = 3000000L;
 
     /**
      * Issuer
@@ -36,10 +37,9 @@ public class CLVRToken extends AbstractCLVRComponent {
      * @param clvrPayload
      */
     public CLVRToken(CLVRPayload clvrPayload) {
-        issuer = "SYA";
-        issuedTime = Instant.now().getEpochSecond();
-        // more than 30 days validity
-        expirationTime = issuedTime + 3000000L;
+        this.issuer = "SYA";
+        this.issuedTime = Instant.now().getEpochSecond();
+        this.expirationTime = issuedTime + DEFAULT_VALIDITY_TIME;
         this.clvrPayload = clvrPayload;
     }
 
@@ -47,7 +47,7 @@ public class CLVRToken extends AbstractCLVRComponent {
      * Contructor with only issued time set
      */
     public CLVRToken() {
-        issuedTime = Instant.now().getEpochSecond();
+        this.issuedTime = Instant.now().getEpochSecond();
     }
 
     public String getIssuer() {
