@@ -3,6 +3,9 @@ package org.immregitries.clvr.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.Instant;
+import java.util.Date;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CLVRToken extends AbstractCLVRComponent {
 
@@ -34,8 +37,9 @@ public class CLVRToken extends AbstractCLVRComponent {
      */
     public CLVRToken(CLVRPayload clvrPayload) {
         issuer = "SYA";
-        issuedTime = System.currentTimeMillis() / 1000L;
-        expirationTime = issuedTime + 1000000L;
+        issuedTime = Instant.now().getEpochSecond();
+        // more than 30 days validity
+        expirationTime = issuedTime + 3000000L;
         this.clvrPayload = clvrPayload;
     }
 
@@ -43,7 +47,7 @@ public class CLVRToken extends AbstractCLVRComponent {
      * Contructor with only issued time set
      */
     public CLVRToken() {
-        issuedTime = System.currentTimeMillis() / 1000L;
+        issuedTime = Instant.now().getEpochSecond();
     }
 
     public String getIssuer() {

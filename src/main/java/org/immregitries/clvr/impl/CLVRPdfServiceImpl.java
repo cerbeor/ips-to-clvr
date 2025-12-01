@@ -1,7 +1,6 @@
 package org.immregitries.clvr.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.syadem.nuva.Vaccine;
@@ -13,6 +12,7 @@ import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
@@ -50,13 +50,15 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
         this.nuvaService = nuvaService;
     }
 
-    private static void printLabels(PDPageContentStream content, String english, String french, String spanish, PDType1Font oblique) throws IOException {
+    private static void printLabels(PDPageContentStream content, String english, String french, String spanish, int fontSize, PDFont font1, PDFont font2) throws IOException {
+        content.setFont(font1, fontSize);
         content.showText(english + " ");
-        content.setFont(oblique, 12);
+        content.setFont(font2, fontSize);
         content.setStrokingColor(CLVRPdfServiceImpl.TRANSPARENCY_LOW);
         content.showText("(" + french + "/");
         content.showText(spanish + ")");
         content.setStrokingColor(CLVRPdfServiceImpl.TRANSPARENCY_HIGH);
+        content.setFont(font1, fontSize);
     }
 
     protected static void printPdf(
@@ -69,7 +71,7 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
     }
 
     @Override
-    public PDDocument createPdf(CLVRToken token, byte[] qrCode, String creator) throws IOException, WriterException {
+    public PDDocument createPdf(CLVRToken token, byte[] qrCode, String pdfCreator) throws IOException {
         CLVRPayload payload = token.getClvrPayload();
 
         // Create a new document
@@ -93,11 +95,11 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
 
         PDDocumentInformation pdDocumentInformation = new PDDocumentInformation();
         document.setDocumentInformation(pdDocumentInformation);
-        pdDocumentInformation.setCreator(creator);
+        pdDocumentInformation.setCreator(pdfCreator);
         pdDocumentInformation.setCustomMetadataValue("evc", objectMapper.writeValueAsString(payload));
 
 
-        float margin = 50;
+        float margin = 30;
         float langageMargin = -15;
         float yStart = page.getMediaBox().getHeight() - margin * 2;
 
@@ -105,6 +107,25 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
         PDType1Font normalFont = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
         PDType1Font oblique = new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE);
         PDType1Font boldOblique = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD_OBLIQUE);
+
+        // Sub Header
+        int subheaderSize = 10;
+        content.beginText();
+        content.newLineAtOffset(page.getMediaBox().getWidth() / 2 + margin * 3, page.getMediaBox().getHeight() - margin);
+        printLabels(content, "Issued on", "Publié le", "Emitido el", subheaderSize, normalFont, oblique);
+        content.setFont(bold, subheaderSize);
+        content.showText(": " + simpleDateFormat.format(new Date(token.getIssuedTime() * 1000L)));
+
+        content.newLineAtOffset(0, -15);
+        printLabels(content, "Issuer", "Source", "Emisor", subheaderSize, normalFont, oblique);
+        content.setFont(bold, subheaderSize);
+        content.showText(": "  + token.getIssuer());
+
+        content.newLineAtOffset(0, -15);
+        printLabels(content, "Expiring", "Expiration", "Expira el", subheaderSize, normalFont, oblique);
+        content.setFont(bold, subheaderSize);
+        content.showText(": " + simpleDateFormat.format(new Date(token.getExpirationTime() * 1000L)));
+        content.endText();
 
         // Header
         content.beginText();
@@ -129,21 +150,21 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
         content.beginText();
         content.setFont(normalFont, 12);
         content.newLineAtOffset(margin, yStart);
-        printLabels(content, "First Name", "Prénom", "Nombre", oblique);
+        printLabels(content, "First Name", "Prénom", "Nombre", 12, normalFont, oblique);
         content.setFont(bold, 12);
         content.setStrokingColor(TRANSPARENCY_HIGH);
         content.showText(": " + payload.getName().getGivenName());
         content.setFont(normalFont, 12);
 
         content.newLineAtOffset(0, -15);
-        printLabels(content, "Last Name", "Nom de Famille", "Apellido", oblique);
+        printLabels(content, "Last Name", "Nom de Famille", "Apellido", 12, normalFont, oblique);
         content.setFont(bold, 12);
         content.showText(": " + payload.getName().getFamilyName());
         content.setFont(normalFont, 12);
 
 
         content.newLineAtOffset(0, -15);
-        printLabels(content, "Date of Birth", "Date de Naissance", "Cumpleaños", oblique);
+        printLabels(content, "Date of Birth", "Date de Naissance", "Cumpleaños", 12, normalFont, oblique);
         content.setFont(bold, 12);
         content.showText(": " + simpleDateFormat.format(payload.getDateOfBirth()));
         content.setFont(normalFont, 12);
@@ -159,13 +180,13 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
         content.beginText();
         content.setFont(bold, 12);
         content.newLineAtOffset(margin, yStart);
-        printLabels(content, "Vaccine", "Vaccin", "Vacuna", oblique);
+        printLabels(content, "Vaccine", "Vaccin", "Vacuna", 12, normalFont, oblique);
         content.newLineAtOffset(150, 0);
         content.setFont(bold, 12);
-        printLabels(content, "Date", "Date", "Fecha", oblique);
+        printLabels(content, "Date", "Date", "Fecha", 12, normalFont, oblique);
         content.newLineAtOffset(150, 0);
         content.setFont(bold, 12);
-        printLabels(content, "Country", "Pays", "País", oblique);
+        printLabels(content, "Country", "Pays", "País", 12, normalFont, oblique);
 
         content.endText();
 
@@ -220,7 +241,7 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
         content.beginText();
         content.setFont(oblique, 10);
         content.newLineAtOffset(margin, 30);
-        content.showText("Generated on: " + new Date(token.getIssuedTime()) + " by " + creator);
+        content.showText("PDF generated on: " + LocalDate.now() + " by " + pdfCreator);
         content.endText();
 
         // Close everything
