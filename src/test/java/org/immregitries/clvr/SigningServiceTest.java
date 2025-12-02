@@ -34,7 +34,7 @@ class SigningServiceTest extends BaseCLVRTest {
     }
 
     void testSigningConsistence(CLVRPayload payload) throws IOException {
-        byte[] cbor = cborService.toCbor(new CLVRToken(payload, "SYA"));
+        byte[] cbor = cborService.toCbor(new CLVRToken(payload, TEST_ISSUER));
         testSigningConsistence(cbor);
     }
 

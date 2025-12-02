@@ -40,7 +40,7 @@ public class CLVRToken extends AbstractCLVRComponent {
     public CLVRToken(CLVRPayload clvrPayload, String issuer) {
         this.issuer = issuer;
         this.issuedTime = Instant.now().getEpochSecond();
-        this.expirationTime = issuedTime + DEFAULT_VALIDITY_TIME;
+        this.expirationTime = this.issuedTime + DEFAULT_VALIDITY_TIME;
         this.clvrPayload = clvrPayload;
     }
 

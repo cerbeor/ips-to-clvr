@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.security.*;
+import java.time.Instant;
 import java.util.zip.DataFormatException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,17 +28,19 @@ class QrCodeServiceTest extends BaseCLVRTest {
 
     /**
      * Verifying qrcode parsing leads to the right payload
-     * @param qr
-     * @param originalPayload
+     * @param qr qrcode
+     * @param originalPayload payload to compare
      * @throws COSEException
      * @throws IOException
      * @throws DataFormatException
      */
     private void comparePayloads(String qr, String originalPayload) throws COSEException, IOException, DataFormatException {
-        //        byte[] cbor = cborService.toCbor(objectMapper.readValue(sample,CLVRPayload.class));
+//        byte[] cbor = cborService.toCbor(objectMapper.readValue(sample,CLVRPayload.class));
 //        logger.info("Expected length {}, expected CBOR {}",cbor.length, new String(cbor));
         CLVRToken clvrToken  = clvrService.decodeFullQrCode(qr.getBytes(), null);
-        assertEquals(objectMapper.readValue(originalPayload, CLVRPayload.class).toString(), clvrToken.getClvrPayload().toString());
+        CLVRPayload originalClvrPayload = objectMapper.readValue(originalPayload, CLVRPayload.class);
+        assertEquals(TEST_ISSUER, clvrToken.getIssuer());
+        assertEquals(originalClvrPayload.toString(), clvrToken.getClvrPayload().toString());
     }
 
 
@@ -53,7 +56,7 @@ class QrCodeServiceTest extends BaseCLVRTest {
     }
 
     void testQrCodeConsistence(CLVRPayload payload) throws Exception {
-        byte[] cbor = cborService.toCbor(new CLVRToken(payload, "SYA"));
+        byte[] cbor = cborService.toCbor(new CLVRToken(payload, TEST_ISSUER));
         KeyPair keyPair = testKeyPairManager.getOrCreateKeyPair(TEST_KEY_FILE_NAME);
         byte[] coseSign1 = signingService.createCoseSign1(cbor, keyPair);
         byte[] deflated = CompressionUtil.deflate(coseSign1, NOWRAP);
