@@ -55,7 +55,7 @@ public class BaseCLVRTest {
     protected TestKeyPairManager testKeyPairManager;
 
 
-    protected FhirConversionUtilR4 fhirToCLVRPayloadUtil;
+    protected FhirConversionUtilR4 fhirConversionUtilR4;
     protected ObjectMapper objectMapper = new ObjectMapper();
 
 
@@ -65,8 +65,8 @@ public class BaseCLVRTest {
         this.cborService = new CborServiceImpl();
         this.signingService = new SigningServiceImpl();
         this.qrCodeService = new QrCodeServiceImpl();
-        this.clvrService = new CLVRServiceImpl(signingService,cborService, qrCodeService);
-        this.fhirToCLVRPayloadUtil = new FhirConversionUtilR4(nuvaService);
+        this.clvrService = new CLVRServiceImpl(signingService, cborService, qrCodeService);
+        this.fhirConversionUtilR4 = new FhirConversionUtilR4(nuvaService);
         this.testKeyPairManager = new TestKeyPairManager(folder);
 //        BasicConfigurator.configure();
     }
