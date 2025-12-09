@@ -96,6 +96,7 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
         ClassLoader classLoader = getClass().getClassLoader();
         if (StringUtils.isNotBlank(this.customTemplateFilePath)) try {
             document = Loader.loadPDF(new RandomAccessReadBufferedFile(this.customTemplateFilePath));
+//            document = Loader.loadPDF(new RandomAccessReadBufferedFile(this.customTemplateFilePath));
             page = document.getPage(0);
             content = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, false, true);
         } catch (IOException ignored) {}
@@ -104,7 +105,7 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
          * Try to get the template from the resources default template
          */
         if (document == null || content == null) try {
-            document = Loader.loadPDF(new RandomAccessReadBufferedFile(classLoader.getResource(PDF_TEMPLATE_PDF).getFile()));
+            document = Loader.loadPDF(classLoader.getResourceAsStream(PDF_TEMPLATE_PDF).readAllBytes());
             page = document.getPage(0);
             content = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, false, true);
         } catch (IOException | NullPointerException ignored) {}
@@ -223,15 +224,16 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
 
         yStart -= 70;
 
+        int tx_array = 200;
         // Table Header
         content.beginText();
         content.setFont(bold, 12);
         content.newLineAtOffset(margin, yStart);
         printLabels(content, "Vaccine", "Vaccin", "Vacuna", 12, normalFont, oblique);
-        content.newLineAtOffset(200, 0);
+        content.newLineAtOffset(tx_array, 0);
         content.setFont(bold, 12);
         printLabels(content, "Date", "Date", "Fecha", 12, normalFont, oblique);
-        content.newLineAtOffset(200, 0);
+        content.newLineAtOffset(tx_array, 0);
         content.setFont(bold, 12);
         printLabels(content, "Country", "Pays", "País", 12, normalFont, oblique);
 
@@ -246,10 +248,10 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
             content.beginText();
             content.newLineAtOffset(margin, yStart);
             content.showText(vaccine.getName());
-            content.newLineAtOffset(150, 0);
+            content.newLineAtOffset(tx_array, 0);
             Date adminDate = new Date(TimeUnit.DAYS.toMillis(record.getAgeInDays()) + payload.getDateOfBirth().getTime());
             content.showText(simpleDateFormat.format(adminDate));
-            content.newLineAtOffset(150, 0);
+            content.newLineAtOffset(tx_array, 0);
             content.showText(record.getRegistryCode());
             content.endText();
             yStart -= 20;
