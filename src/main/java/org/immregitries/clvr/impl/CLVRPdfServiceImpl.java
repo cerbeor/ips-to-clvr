@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -36,8 +37,10 @@ import java.util.concurrent.TimeUnit;
 public class CLVRPdfServiceImpl implements CLVRPdfService {
     public static final float TRANSPARENCY_HIGH = 1f;
     public static final float TRANSPARENCY_LOW = 0.6f;
-    public static final String PDF_TEMPLATE_PDF = "src/main/resources/pdf_template.pdf";
-    public static final String CLVR_PNG = "src/main/resources/clvr.png";
+    public static final String PDF_TEMPLATE_PDF = "pdf_template.pdf";
+//    public static final String PDF_TEMPLATE_PDF_FULL_PATH = "src/main/resources" + PDF_TEMPLATE_PDF;
+    public static final String CLVR_LOGO_PNG = "clvr.png";
+//    public static final String CLVR_PNG_FULL_PATH = "src/main/resources" + LOGO;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -45,9 +48,19 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
 
     private final NUVAService nuvaService;
 
+    /**
+     *
+     */
+    private final String customTemplateFilePath;
+
+    public CLVRPdfServiceImpl(NUVAService nuvaService, String customTemplateFilePath) {
+        this.nuvaService = nuvaService;
+        this.customTemplateFilePath = customTemplateFilePath;
+    }
 
     public CLVRPdfServiceImpl(NUVAService nuvaService) {
         this.nuvaService = nuvaService;
+        customTemplateFilePath = "";
     }
 
     private static void printLabels(PDPageContentStream content, String english, String french, String spanish, int fontSize, PDFont font1, PDFont font2) throws IOException {
@@ -73,34 +86,65 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
     @Override
     public PDDocument createPdf(CLVRToken token, byte[] qrCode, String pdfCreator) throws IOException {
         CLVRPayload payload = token.getClvrPayload();
+        // Get the ClassLoader for the current class
 
         // Create a new document
-        PDDocument document;
-        PDPage page;
-        PDPageContentStream content;
+        PDDocument document = null;
+        PDPage page = null;
+        PDPageContentStream content = null;
 
-        try {
-            document = Loader.loadPDF(new RandomAccessReadBufferedFile(PDF_TEMPLATE_PDF));
+        ClassLoader classLoader = getClass().getClassLoader();
+        if (StringUtils.isNotBlank(this.customTemplateFilePath)) try {
+            document = Loader.loadPDF(new RandomAccessReadBufferedFile(this.customTemplateFilePath));
             page = document.getPage(0);
             content = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, false, true);
+        } catch (IOException ignored) {}
 
-        } catch (IOException ioException) {
+        /*
+         * Try to get the template from the resources default template
+         */
+        if (document == null || content == null) try {
+            document = Loader.loadPDF(new RandomAccessReadBufferedFile(classLoader.getResource(PDF_TEMPLATE_PDF).getFile()));
+            page = document.getPage(0);
+            content = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, false, true);
+        } catch (IOException | NullPointerException ignored) {}
+
+        /*
+         * If no template found work with blank document
+         */
+        if (document == null || content == null) {
             document = new PDDocument();
             page = new PDPage(PDRectangle.A4);
             document.addPage(page);
             content = new PDPageContentStream(document, page);
-
             logger.info("PDF template not found for CLVR, using blank new document");
         }
 
+        /*
+         * Get necessary resources for printing
+         */
+//        String file = classLoader.getResource(CLVR_LOGO_PNG).getFile();
+//        File file1 = new File(file);
+//        logger.info("testtest readable {}",file1.canRead());
+//        logger.info("test CLVR length {} file \n {}",
+//                classLoader.getResourceAsStream(CLVR_LOGO_PNG).readAllBytes().length,
+//                new String(classLoader.getResourceAsStream(CLVR_LOGO_PNG).readAllBytes()));
+        PDImageXObject clvrLogoImage = PDImageXObject.createFromByteArray(document, classLoader.getResourceAsStream(CLVR_LOGO_PNG).readAllBytes(), CLVR_LOGO_PNG);
+
+        /*
+         * Set up Metadata
+         */
         PDDocumentInformation pdDocumentInformation = new PDDocumentInformation();
         document.setDocumentInformation(pdDocumentInformation);
         pdDocumentInformation.setCreator(pdfCreator);
         pdDocumentInformation.setCustomMetadataValue("evc", objectMapper.writeValueAsString(payload));
 
 
+        /*
+         * Set up margins  fonts and variables
+         */
         float margin = 30;
-        float langageMargin = -15;
+        float languageMargin = -15;
         float yStart = page.getMediaBox().getHeight() - margin * 2;
 
         PDType1Font bold = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
@@ -108,6 +152,9 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
         PDType1Font oblique = new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE);
         PDType1Font boldOblique = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD_OBLIQUE);
 
+        /*
+         * Establish the content
+         */
         // Sub Header
         int subheaderSize = 10;
         content.beginText();
@@ -132,12 +179,12 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
         content.setFont(bold, 20);
         content.newLineAtOffset(margin, yStart);
         content.showText("Vaccination Summary");
-        content.newLineAtOffset(10, langageMargin);
+        content.newLineAtOffset(10, languageMargin);
         content.setFont(oblique, 16);
         content.setStrokingColor(TRANSPARENCY_LOW);
 
         content.showText("Historique Vaccinal");
-        content.newLineAtOffset(0, langageMargin);
+        content.newLineAtOffset(0, languageMargin);
         content.showText("Historial de vacunación");
         content.endText();
         content.setStrokingColor(TRANSPARENCY_HIGH);
@@ -181,10 +228,10 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
         content.setFont(bold, 12);
         content.newLineAtOffset(margin, yStart);
         printLabels(content, "Vaccine", "Vaccin", "Vacuna", 12, normalFont, oblique);
-        content.newLineAtOffset(150, 0);
+        content.newLineAtOffset(200, 0);
         content.setFont(bold, 12);
         printLabels(content, "Date", "Date", "Fecha", 12, normalFont, oblique);
-        content.newLineAtOffset(150, 0);
+        content.newLineAtOffset(200, 0);
         content.setFont(bold, 12);
         printLabels(content, "Country", "Pays", "País", 12, normalFont, oblique);
 
@@ -234,7 +281,6 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
         }
 
         // CLVR SVG
-        PDImageXObject clvrLogoImage = PDImageXObject.createFromFile(CLVR_PNG, document);
         content.drawImage(clvrLogoImage, qr_x, qr_y + qr_width);
 
         // Footer text
