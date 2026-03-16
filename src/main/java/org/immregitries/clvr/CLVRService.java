@@ -12,5 +12,8 @@ public interface CLVRService {
 
     String encodeCLVRtoQrCode(CLVRToken clvrToken, KeyPair keyPair) throws IOException, COSEException, SignatureException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException;
 
-    CLVRToken decodeFullQrCode(byte[] qrcode, KeyPair keyPair) throws COSEException, IOException, DataFormatException;
+    CLVRToken decodeFullQrCode(byte[] qrcode, KeyPair keyPair) throws DataFormatException, IOException, COSEException;
+    CLVRToken decodeFullQrCode(byte[] qrcode, PublicKey aPublic) throws DataFormatException, IOException, COSEException;
+    CLVRToken decodeFullQrCode(byte[] qrcode) throws DataFormatException, IOException, COSEException;
+
 }
