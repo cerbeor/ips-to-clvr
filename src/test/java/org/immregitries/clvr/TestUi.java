@@ -16,13 +16,16 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.syadem.nuva.NUVA;
+import com.syadem.nuva.SupportedLocale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.hl7.fhir.r4.model.Bundle;
-import org.immregitries.clvr.impl.CLVRPdfServiceImpl;
+import org.immregitries.clvr.impl.*;
+import org.immregitries.clvr.mapping.FhirConversionUtilR4;
 import org.immregitries.clvr.model.AbstractCLVRComponent;
 import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.CLVRToken;
@@ -42,12 +45,18 @@ import java.text.ParseException;
 import java.util.UUID;
 
 public class TestUi extends JFrame {
+
+    private NUVAService nuvaService;
+    private CLVRService clvrService;
+    private SigningService signingService;
+    private CborService cborService;
+    private QrCodeService qrCodeService;
+    private FhirConversionUtilR4 fhirConversionUtilR4;
+
     public static final Color BACKGROUND = new Color(245, 245, 245);
     public static final int ERROR_ROWS = 8;
     public static final int ERROR_COLUMNS = 20;
-    public static final Insets INSETS = new Insets(10, 5, 5, 5);
-    private BaseCLVRTest baseCLVRTest =  new BaseCLVRTest();
-    private CLVRPdfService clvrPdfService = new CLVRPdfServiceImpl(baseCLVRTest.nuvaService);
+    private CLVRPdfService clvrPdfService;
     private FhirContext fhirContext = FhirContext.forR4();
 
     /**
@@ -69,6 +78,16 @@ public class TestUi extends JFrame {
     private JLabel qrCodeImage =  new JLabel(new ImageIcon());
 
     public TestUi() throws IOException{
+        NUVA nuva = NUVA.load(SupportedLocale.English);
+        this.nuvaService = new NUVAService(nuva);
+        this.cborService = new CborServiceImpl();
+        this.signingService = new SigningServiceImpl();
+        this.qrCodeService = new QrCodeServiceImpl();
+        this.clvrService = new CLVRServiceImpl(signingService, cborService, qrCodeService);
+        this.fhirConversionUtilR4 = new FhirConversionUtilR4(nuvaService);
+        this.clvrPdfService = new CLVRPdfServiceImpl(nuvaService);
+
+
         setTitle("FHIR to Health QR Code Generator (Java 17)");
         setSize(700, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -271,7 +290,7 @@ public class TestUi extends JFrame {
                 fhirErrorArea.setText("");
                 if (fhirBundleArea.getText().isEmpty()) throw new IllegalArgumentException("FHIR Bundle cannot be empty!");
                 Bundle fhirBundle = fhirContext.newJsonParser().setPrettyPrint(true).parseResource(Bundle.class, fhirBundleArea.getText());
-                CLVRPayload clvrPayloadFromBundle = baseCLVRTest.fhirConversionUtilR4.toCLVRPayloadFromBundle(fhirBundle);
+                CLVRPayload clvrPayloadFromBundle = fhirConversionUtilR4.toCLVRPayloadFromBundle(fhirBundle);
                 CLVRToken clvrToken = new CLVRToken(clvrPayloadFromBundle, issuerField.getText());
                 clvrTokenArea.setText(prettyPrintJson(clvrToken.toString()));
                 handleSuccess("Parsed and Converted FHIR Bundle", fhirErrorArea);
@@ -340,7 +359,7 @@ public class TestUi extends JFrame {
         genQrButton.addActionListener(e -> {
             try {
                 CLVRToken clvrToken = parseClvrToken();
-                qrTextArea.setText(baseCLVRTest.clvrService.encodeCLVRtoQrCode(clvrToken, keyPair));
+                qrTextArea.setText(clvrService.encodeCLVRtoQrCode(clvrToken, keyPair));
                 updateQrCode();
                 handleSuccess("Generated QR Code", clvrErrorArea);
             } catch (Exception ex) {
@@ -448,7 +467,7 @@ public class TestUi extends JFrame {
         JButton qrToTokenButton = new JButton("<< Parse CLVR Token");
         qrToTokenButton.addActionListener(e -> {
             try {
-                String clvrTokenString = baseCLVRTest.clvrService.decodeFullQrCode(qrTextArea.getText().getBytes(), keyPair).toString();
+                String clvrTokenString = clvrService.decodeFullQrCode(qrTextArea.getText().getBytes(), keyPair).toString();
                 clvrTokenArea.setText(prettyPrintJson(clvrTokenString));
             } catch (Exception ex) {
                 handleError(ex, statusLabel, null);
