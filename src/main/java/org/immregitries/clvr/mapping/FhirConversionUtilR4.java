@@ -139,7 +139,7 @@ public class FhirConversionUtilR4 extends FhirConversionUtil<Bundle, Immunizatio
 //		}
 
         // Initialize vaccination records list
-        payload.setVaccinationRecords(new ArrayList<>());
+        payload.setCLVRVaccinationRecords(new ArrayList<>());
 
         return payload;
     }
@@ -171,7 +171,7 @@ public class FhirConversionUtilR4 extends FhirConversionUtil<Bundle, Immunizatio
         for (Immunization immunization : immunizations) {
             CLVRVaccinationRecords.add(toVaccinationRecord(immunization, patient));
         }
-        payload.setVaccinationRecords(CLVRVaccinationRecords);
+        payload.setCLVRVaccinationRecords(CLVRVaccinationRecords);
 
         return payload;
     }

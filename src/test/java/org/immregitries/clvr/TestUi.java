@@ -8,6 +8,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.nimbusds.jose.JOSEException;
@@ -27,6 +28,8 @@ import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.CLVRToken;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -59,10 +62,11 @@ public class TestUi extends JFrame {
     private JTextArea keyTextArea = new JTextArea(50, 40);
     private JTextArea fhirBundleArea = new JTextArea(50, 40);
     private JTextArea clvrTokenArea = new JTextArea(50, 40);
-    private JTextArea qrTextArea = new JTextArea(2, 40);
+    private JTextArea qrTextArea = new JTextArea(50, 40);
     private JTextField issuerField = new JTextField(5);
 
     private KeyPair keyPair;
+    private JLabel qrCodeImage =  new JLabel(new ImageIcon());
 
     public TestUi() throws IOException{
         setTitle("FHIR to Health QR Code Generator (Java 17)");
@@ -99,7 +103,7 @@ public class TestUi extends JFrame {
     private JPanel keyPanel() {
         JLabel statusLabel = new JLabel("Key Required");
         // Main Container
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         // 1. Title (North)
@@ -116,7 +120,7 @@ public class TestUi extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.insets = new Insets(15, 5, 5, 5); // Add top margin to separate
-        formPanel.add(new JLabel("JWK key (EC)"), gbc);
+        formPanel.add(new JLabel("JWK key (EC):"), gbc);
 
         gbc.gridy = 1;
         gbc.weightx = 1.0;
@@ -132,7 +136,7 @@ public class TestUi extends JFrame {
         southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.Y_AXIS));
 
         // Buttons Row
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JPanel buttonPanel = new JPanel(new WrapLayout(FlowLayout.CENTER, 10, 10));
         JButton backward = generateKeyButton(statusLabel);
         JButton loadKey = getLoadKeyPairButton(statusLabel);
         buttonPanel.add(backward);
@@ -185,7 +189,7 @@ public class TestUi extends JFrame {
     }
 
     public JPanel inputsPanel() {
-        JLabel statusLabel = new JLabel("Ready", SwingConstants.CENTER);
+        JLabel statusLabel = new JLabel("", SwingConstants.CENTER);
         // Main Container
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
@@ -227,7 +231,7 @@ public class TestUi extends JFrame {
         southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.Y_AXIS));
 
         // Buttons Row
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JPanel buttonPanel = new JPanel(new WrapLayout(FlowLayout.CENTER, 10, 10));
         JButton btnExample = genGetFhirExampleButton(statusLabel);
         JButton btnConvert =  fhirForwardButton(statusLabel);
         buttonPanel.add(btnExample);
@@ -252,7 +256,7 @@ public class TestUi extends JFrame {
         getExampleFhirBundle.addActionListener(e -> {
             try {
                 issuerField.setText("SYA");
-                fhirBundleArea.setText(FhirConversionUtilTest.IPS_SAMPLE_R4_BUNDLE);
+                fhirBundleArea.setText(FhirConversionUtilTest.IPS_SAMPLE_R4_IIS);
             } catch (Exception ex) {
                 handleError(ex, statusLabel, null);
             }
@@ -279,42 +283,65 @@ public class TestUi extends JFrame {
     }
 
     private JPanel clvrPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = INSETS;
+        JLabel statusLabel = new JLabel("");
+        // Main Container
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        panel.add(new JLabel("<html><h2>CLVR Token</h2></html>"), gbc);
+        // 1. Title (North)
+        JLabel titleLabel = new JLabel("<html><h2>CLVR</h2></html>", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
+        panel.add(titleLabel, BorderLayout.NORTH);
+
+        // 2. Form Section (Center)
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         gbc.gridx = 0;
-//        gbc.gridy = 1;
-        gbc.weightx = 1;
-        gbc.weighty = 1;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(15, 5, 5, 5); // Add top margin to separate
+        formPanel.add(new JLabel("CLVR Token:"), gbc);
+
+        gbc.gridy = 1;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0; // Give the textarea the extra vertical space
         gbc.fill = GridBagConstraints.BOTH;
+        clvrTokenArea.setLineWrap(true);
+        formPanel.add(new JScrollPane(clvrTokenArea), gbc);
 
-        panel.add(new JScrollPane(clvrTokenArea), gbc);
+        panel.add(formPanel, BorderLayout.CENTER);
 
-        JLabel clvrErrorArea = new JLabel();
-        clvrErrorArea.setBackground(BACKGROUND);
-        add(new JScrollPane(clvrErrorArea), BorderLayout.SOUTH);
+        // 3. Actions & Status (South)
+        JPanel southPanel = new JPanel();
+        southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.Y_AXIS));
 
+        // Buttons Row
+        JPanel buttonPanel = new JPanel(new WrapLayout(FlowLayout.CENTER, 10, 10));
+        JButton genQrButton = getGenQrButton(statusLabel);
+        buttonPanel.add(genQrButton, gbc);
 
-        gbc.weightx = 0.5;
-        gbc.weighty = 0.5;
-        gbc.fill = 0;
-        JPanel buttonsPanel = new JPanel(new GridBagLayout());
-        JButton genQrButton = getGenQrButton(clvrErrorArea);
+        // Status Label
+        statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        statusLabel.setFont(new Font("SansSerif", Font.ITALIC, 12));
+        statusLabel.setForeground(Color.BLUE); // Default color
 
-        buttonsPanel.add(genQrButton, gbc);
-        panel.add(buttonsPanel, gbc);
+        southPanel.add(buttonPanel);
+        southPanel.add(statusLabel);
+        southPanel.add(Box.createVerticalStrut(10)); // Bottom padding
+
+        panel.add(southPanel, BorderLayout.SOUTH);
         return panel;
     }
 
     private @NonNull JButton getGenQrButton(JLabel clvrErrorArea) {
-        JButton genQrButton = new JButton("Generate QR Code >>");
+        JButton genQrButton = new JButton("Sign and Compress >>");
         genQrButton.addActionListener(e -> {
             try {
                 CLVRToken clvrToken = parseClvrToken();
                 qrTextArea.setText(baseCLVRTest.clvrService.encodeCLVRtoQrCode(clvrToken, keyPair));
+                updateQrCode();
                 handleSuccess("Generated QR Code", clvrErrorArea);
             } catch (Exception ex) {
                 handleError(ex, clvrErrorArea, null);
@@ -323,52 +350,111 @@ public class TestUi extends JFrame {
         return genQrButton;
     }
 
-
-
     private JPanel qrPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = INSETS;
+        JLabel statusLabel = new JLabel("");
+        // Main Container
+        JPanel panel = new JPanel(new BorderLayout(5, 5));
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        panel.add(new JLabel("<html><h2>Qr Code</h2></html>"), gbc);
+        // 1. Title (North)
+        JLabel titleLabel = new JLabel("<html><h2>CLVR Results</h2></html>", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
+        panel.add(titleLabel, BorderLayout.NORTH);
+
+        // 2. Form Section (Center)
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         gbc.gridx = 0;
-//        gbc.gridy = 1;
-        gbc.weightx = 1;
-        gbc.weighty = 1;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(15, 5, 5, 5); // Add top margin to separate
+        formPanel.add(new JLabel("QR Code (String):"), gbc);
+
+        gbc.gridy = 1;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.5; // Give the textarea the extra vertical space
         gbc.fill = GridBagConstraints.BOTH;
+        qrTextArea.setLineWrap(true);
+        qrTextArea.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) { generateQR(); }
+            public void removeUpdate(DocumentEvent e) { generateQR(); }
+            public void insertUpdate(DocumentEvent e) { generateQR(); }
 
-        panel.add(new JScrollPane(qrTextArea), gbc);
+            public void generateQR() {
+                try {
+                    updateQrCode();
+                } catch (Exception ex) {
+                    handleError(ex, statusLabel, "QR Code not accepted");
+                }
+            }
+        });
 
-        JLabel qrErrorArea = new JLabel();
-        qrErrorArea.setForeground(Color.RED);
-        qrErrorArea.setBackground(BACKGROUND);
-        add(new JScrollPane(qrErrorArea), BorderLayout.SOUTH);
+        formPanel.add(new JScrollPane(qrTextArea), gbc);
 
-        gbc.weightx = 0.5;
-        gbc.weighty = 0.5;
-        gbc.fill = 0;
-        JPanel buttonsPanel = new JPanel(new GridBagLayout());
-        JButton backward = new JButton("<< Parse CLVR Token");
-        backward.addActionListener(e -> {
+        gbc.gridy = 2;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0; // Give the textarea the extra vertical space
+//        formPanel.add(qrCodeImage);
+//        gbc.gridy = 3;
+//        gbc.weightx = 1.0;
+//        gbc.weighty = 1.0; // Give the textarea the extra vertical space
+
+        panel.add(formPanel, BorderLayout.CENTER);
+
+        // 3. Actions & Status (South)
+        JPanel southPanel = new JPanel();
+        southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.Y_AXIS));
+
+        // Buttons Row
+        JPanel buttonPanel = new JPanel(new WrapLayout(FlowLayout.CENTER, 10, 10));
+        JButton qrToTokenButton = getQrToTokenButton(statusLabel);
+        JButton printQrButton = printQrButton(statusLabel);
+        JButton printPdfButton = getPrintPdfButton(statusLabel);
+        JButton exportPdfButton = exportPdfButton(statusLabel);
+        buttonPanel.add(qrToTokenButton, gbc);
+        buttonPanel.add(printQrButton, gbc);
+        buttonPanel.add(printPdfButton, gbc);
+        buttonPanel.add(exportPdfButton, gbc);
+
+        // Status Label
+        statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        statusLabel.setFont(new Font("SansSerif", Font.ITALIC, 12));
+        statusLabel.setForeground(Color.BLUE); // Default color
+
+        formPanel.add(buttonPanel, gbc);
+        southPanel.add(statusLabel);
+        southPanel.add(Box.createVerticalStrut(10)); // Bottom padding
+
+        panel.add(southPanel, BorderLayout.SOUTH);
+        return panel;
+    }
+
+    private @NonNull JButton printQrButton(JLabel qrErrorArea) {
+        JButton printQrButton = new JButton("Show QR Code");
+        printQrButton.addActionListener(e -> {
             try {
-                String clvrTokenString = baseCLVRTest.clvrService.decodeFullQrCode(qrTextArea.getText().getBytes(), keyPair).toString();
-                clvrTokenArea.setText(prettyPrintJson(clvrTokenString));
+                qrErrorArea.setText("");
+                JOptionPane.showMessageDialog(this, qrCodeImage, "Generated Health QR Code", JOptionPane.PLAIN_MESSAGE);
             } catch (Exception ex) {
                 handleError(ex, qrErrorArea, null);
             }
         });
-        JButton printQrButton = printQrButton(qrErrorArea);
-        JButton printPdfButton = getPrintPdfButton(qrErrorArea);
-        JButton exportPdfButton = exportPdfButton(qrErrorArea);
+        return printQrButton;
+    }
 
-        buttonsPanel.add(backward, gbc);
-        buttonsPanel.add(printQrButton, gbc);
-        buttonsPanel.add(printPdfButton, gbc);
-        buttonsPanel.add(exportPdfButton, gbc);
-
-        panel.add(buttonsPanel, gbc);
-        return panel;
+    private @NonNull JButton getQrToTokenButton(JLabel statusLabel) {
+        JButton qrToTokenButton = new JButton("<< Parse CLVR Token");
+        qrToTokenButton.addActionListener(e -> {
+            try {
+                String clvrTokenString = baseCLVRTest.clvrService.decodeFullQrCode(qrTextArea.getText().getBytes(), keyPair).toString();
+                clvrTokenArea.setText(prettyPrintJson(clvrTokenString));
+            } catch (Exception ex) {
+                handleError(ex, statusLabel, null);
+            }
+        });
+        return qrToTokenButton;
     }
 
     private @NonNull JButton getPrintPdfButton(JLabel errorArea) {
@@ -399,22 +485,29 @@ public class TestUi extends JFrame {
 
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                fileChooser.setFileFilter(new FileNameExtensionFilter("Pdf Files", ".pdf"));
+//                fileChooser.setFileFilter(new FileNameExtensionFilter("Pdf Files", ".pdf"));
+//                fileChooser.setFileFilter(new DirectoryFilter);
                 // Optional: set the initial directory
                 fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
 
                 int result = fileChooser.showOpenDialog(this);
 
                 if (result == JFileChooser.APPROVE_OPTION) {
-                    File selectedDirectory = fileChooser.getSelectedFile();
-                    String fileName = "ips-to-clvr-export.pdf";
+                    File selectedFile = fileChooser.getSelectedFile();
 
                     // Create the new file in the selected directory
-                    File newFile = new File(selectedDirectory.getAbsolutePath(), fileName);
-
+                    File newFile;
+                    if (selectedFile.isDirectory()) {
+                        newFile = new File(selectedFile.getAbsolutePath(), "ips-to-clvr-export.pdf");
+                    } else if (selectedFile.isFile()) {
+                        newFile = selectedFile;
+                    } else {
+                        JOptionPane.showMessageDialog(this, "File selection cancelled.");
+                        return;
+                    }
 
                     // Do something with the file path, e.g., display it in a dialog or a JTextField
-                    JOptionPane.showMessageDialog(this, "Selected File Path: " + newFile.getAbsolutePath(), "Export PDF", JOptionPane.PLAIN_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Pdf exported to: " + newFile.getAbsolutePath(), "Export PDF", JOptionPane.PLAIN_MESSAGE);
                     // Example of setting the path to a JTextField (assuming 'textField' exists)
                     PDDocument pdDocument = clvrPdfService.createPdf(parseClvrToken(), qrTextArea.getText().getBytes(), "Test-window");
                     pdDocument.save(newFile);
@@ -430,30 +523,24 @@ public class TestUi extends JFrame {
         return printPdfButton;
     }
 
-    private @NonNull JButton printQrButton(JLabel qrErrorArea) {
-        JButton printQrButton = new JButton("Show QR Code");
-        printQrButton.addActionListener(e -> {
-            try {
-                qrErrorArea.setText("");
-                // 1. Generate the BitMatrix (300x300 pixels)
-                BitMatrix matrix = new MultiFormatWriter().encode(
-                        qrTextArea.getText(),
-                        BarcodeFormat.QR_CODE,
-                        300, 300
-                );
+    private void updateQrCode() throws WriterException {
+        String text = qrTextArea.getText();
+        if (StringUtils.isBlank(text)) {
+            return;
+        } else {
+            BitMatrix matrix = new MultiFormatWriter().encode(
+                    qrTextArea.getText(),
+                    BarcodeFormat.QR_CODE,
+                    300, 300
+            );
 
-                // 2. Convert Matrix to BufferedImage
-                BufferedImage image = MatrixToImageWriter.toBufferedImage(matrix);
+            // 2. Convert Matrix to BufferedImage
+            BufferedImage image = MatrixToImageWriter.toBufferedImage(matrix);
 
-                // 3. Display in a Popup (or add to your main panel)
-                JLabel label = new JLabel(new ImageIcon(image));
-                JOptionPane.showMessageDialog(this, label, "Generated Health QR Code", JOptionPane.PLAIN_MESSAGE);
-                handleSuccess("QR printed", qrErrorArea);
-            } catch (Exception ex) {
-                handleError(ex, qrErrorArea, null);
-            }
-        });
-        return printQrButton;
+            // 3. Display in a Popup (or add to your main panel)
+            qrCodeImage.setIcon(new ImageIcon(image));
+        }
+
     }
 
     private void handleException(Exception e) {

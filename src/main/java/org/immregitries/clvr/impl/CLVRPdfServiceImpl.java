@@ -243,7 +243,7 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
 
         // Draw table rows
         content.setFont(normalFont, 12);
-        for (CLVRVaccinationRecord record : payload.getVaccinationRecords()) {
+        for (CLVRVaccinationRecord record : payload.getCLVRVaccinationRecords()) {
             Vaccine vaccine = nuvaService.getNuva().getQueries().lookupVaccineByCode(record.getNuvaCode());
             content.beginText();
             content.newLineAtOffset(margin, yStart);

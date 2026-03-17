@@ -450,7 +450,7 @@ class FhirConversionUtilTest extends BaseCLVRTest {
             "  } ]\n" +
             "}";
 
-    public static final String IPS_SAMPLE_R4_BUNDLE = "{\n" +
+    public static final String IPS_SAMPLE_R4_BUNDLE_SYADEM = "{\n" +
             "  \"resourceType\": \"Bundle\",\n" +
             "  \"type\": \"collection\",\n" +
             "  \"entry\": [\n" +
@@ -570,7 +570,7 @@ class FhirConversionUtilTest extends BaseCLVRTest {
      */
     @Test
     void toCLVRPayloadFromBundleR4() throws JsonProcessingException {
-        String ipsSample = IPS_SAMPLE_R4_BUNDLE;
+        String ipsSample = IPS_SAMPLE_R4_BUNDLE_SYADEM;
         String testSample = TEST_SAMPLE;
 //        logger.info(IPS_SAMPLE_R4_BUNDLE);
         Bundle bundle = fhirContextR4.newJsonParser().parseResource(Bundle.class, ipsSample);

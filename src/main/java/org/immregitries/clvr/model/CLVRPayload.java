@@ -72,11 +72,13 @@ public class CLVRPayload extends AbstractCLVRComponent implements Serializable {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public List<CLVRVaccinationRecord> getVaccinationRecords() {
+    @JsonProperty("v")
+    public List<CLVRVaccinationRecord> getCLVRVaccinationRecords() {
         return CLVRVaccinationRecords;
     }
 
-    public void setVaccinationRecords(List<CLVRVaccinationRecord> CLVRVaccinationRecords) {
+    @JsonProperty("v")
+    public void setCLVRVaccinationRecords(List<CLVRVaccinationRecord> CLVRVaccinationRecords) {
         this.CLVRVaccinationRecords = CLVRVaccinationRecords;
     }
 
