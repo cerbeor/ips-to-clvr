@@ -1,4 +1,4 @@
-package org.immregitries.clvr;
+package org.immregitries.clvr.ui;
 
 import java.awt.*;
 import javax.swing.JScrollPane;

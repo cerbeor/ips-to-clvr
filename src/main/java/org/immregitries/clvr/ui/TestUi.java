@@ -1,4 +1,4 @@
-package org.immregitries.clvr;
+package org.immregitries.clvr.ui;
 
 import ca.uhn.fhir.context.FhirContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,6 +24,7 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.hl7.fhir.r4.model.Bundle;
+import org.immregitries.clvr.*;
 import org.immregitries.clvr.impl.*;
 import org.immregitries.clvr.mapping.FhirConversionUtilR4;
 import org.immregitries.clvr.model.AbstractCLVRComponent;
@@ -33,7 +34,6 @@ import org.immregitries.clvr.model.CLVRToken;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -275,7 +275,7 @@ public class TestUi extends JFrame {
         getExampleFhirBundle.addActionListener(e -> {
             try {
                 issuerField.setText("SYA");
-                fhirBundleArea.setText(FhirConversionUtilTest.IPS_SAMPLE_R4_IIS);
+                fhirBundleArea.setText(Samples.IPS_SAMPLE_R4_IIS);
             } catch (Exception ex) {
                 handleError(ex, statusLabel, null);
             }

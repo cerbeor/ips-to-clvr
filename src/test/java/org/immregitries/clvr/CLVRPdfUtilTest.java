@@ -6,18 +6,13 @@ import com.syadem.nuva.NUVA;
 import com.syadem.nuva.SupportedLocale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.hl7.fhir.r4.model.Bundle;
 import org.immregitries.clvr.impl.CLVRPdfServiceImpl;
 import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.CLVRToken;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.immregitries.clvr.BaseCLVRTest.*;
-import static org.immregitries.clvr.FhirConversionUtilTest.FOR_PDF_TEST;
-import static org.immregitries.clvr.FhirConversionUtilTest.IPS_SAMPLE_R4_IIS;
 
 class CLVRPdfUtilTest extends BaseCLVRTest {
     private CLVRPdfService clvrPdfService;
@@ -39,7 +34,7 @@ class CLVRPdfUtilTest extends BaseCLVRTest {
 
     @Test
     void createPdfIIS() throws IOException, WriterException {
-        CLVRPayload payload =  objectMapper.readValue(FOR_PDF_TEST, CLVRPayload.class);
+        CLVRPayload payload =  objectMapper.readValue(Samples.TOKEN_SAMPLE, CLVRPayload.class);
         CLVRToken clvrToken = new CLVRToken(payload, TEST_ISSUER);
         PDDocument pdDocument = clvrPdfService.createPdf(clvrToken, TEST_SAMPLE_QR.getBytes(), "Unit test");
         printPdf(pdDocument,"unit-test-iis-pdf");
