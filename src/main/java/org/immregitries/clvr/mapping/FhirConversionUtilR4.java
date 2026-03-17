@@ -114,7 +114,7 @@ public class FhirConversionUtilR4 extends FhirConversionUtil<Bundle, Immunizatio
             if (fhirName.hasGiven()) {
                 clvrName.setGivenName(fhirName.getGivenAsSingleString());
             }
-            payload.setName(clvrName);
+            payload.setCLVRName(clvrName);
         }
 
         // Populate date of birth

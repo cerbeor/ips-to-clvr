@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -201,13 +200,13 @@ public class CLVRPdfServiceImpl implements CLVRPdfService {
         printLabels(content, "First Name", "Prénom", "Nombre", 12, normalFont, oblique);
         content.setFont(bold, 12);
         content.setStrokingColor(TRANSPARENCY_HIGH);
-        content.showText(": " + payload.getName().getGivenName());
+        content.showText(": " + payload.getCLVRName().getGivenName());
         content.setFont(normalFont, 12);
 
         content.newLineAtOffset(0, -15);
         printLabels(content, "Last Name", "Nom de Famille", "Apellido", 12, normalFont, oblique);
         content.setFont(bold, 12);
-        content.showText(": " + payload.getName().getFamilyName());
+        content.showText(": " + payload.getCLVRName().getFamilyName());
         content.setFont(normalFont, 12);
 
 

@@ -46,11 +46,13 @@ public class CLVRPayload extends AbstractCLVRComponent implements Serializable {
         this.version = version;
     }
 
-    public CLVRName getName() {
+    @JsonProperty("nam")
+    public CLVRName getCLVRName() {
         return CLVRName;
     }
 
-    public void setName(CLVRName CLVRName) {
+    @JsonProperty("nam")
+    public void setCLVRName(CLVRName CLVRName) {
         this.CLVRName = CLVRName;
     }
 
@@ -81,5 +83,6 @@ public class CLVRPayload extends AbstractCLVRComponent implements Serializable {
     public void setCLVRVaccinationRecords(List<CLVRVaccinationRecord> CLVRVaccinationRecords) {
         this.CLVRVaccinationRecords = CLVRVaccinationRecords;
     }
+
 
 }
