@@ -153,6 +153,9 @@
                         <artifactId>maven-shade-plugin</artifactId>
                         <!-- Use a current version number, e.g., 3.6.2 -->
                         <version>3.6.2</version>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                        </configuration>
                         <executions>
                             <execution>
                                 <phase>package</phase>

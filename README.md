@@ -39,14 +39,25 @@ The core purpose of the `IPS-to-CLVR` library is to act as a **data bridge**. It
 
 ## ⚙️ Installation and Usage
 
-### 1. Building the Project
+### 1. Building the Project as dependency
 
 Clone the repository and build the project using Maven:
 
 ```bash
-git clone [YOUR_REPOSITORY_URL]
+git clone https://github.com/cerbeor/ips-to-clvr
 cd ips-to-clvr
 mvn clean install
+```
+
+### 2. Run the Test UI
+
+Project provides a simple testing UI using JFRAME, use maven `standalone` profile and run:
+
+```bash
+git clone https://github.com/cerbeor/ips-to-clvr
+cd ips-to-clvr
+mvn clean package -Pstandalone
+java -jar target/ips-to-clvr-1.0-SNAPSHOT.jar
 ```
 
 ---
