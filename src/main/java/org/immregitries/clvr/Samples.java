@@ -5,7 +5,7 @@ import static org.immregitries.clvr.mapping.FhirSystems.*;
 public class Samples {
 
 
-    public static final String TOKEN_SAMPLE = "{\"name\":{\"fnt\":\"LilleyAIRA\",\"gnt\":\"TalithaAIRA M\"},\"v\":[{\"reg\":\"USA\",\"rep\":0,\"i\":1659,\"a\":1458,\"mp\":159}],\"ver\":\"1.0.0\",\"nam\":{\"fnt\":\"LilleyAIRA\",\"gnt\":\"TalithaAIRA M\"},\"v\":[{\"reg\":\"USA\",\"rep\":0,\"i\":1659,\"a\":1458,\"mp\":159}],\"dob\":\"2021-08-31\"}\n";
+    public static final String TOKEN_SAMPLE = "{\"nam\":{\"fnt\":\"LilleyAIRA\",\"gnt\":\"TalithaAIRA M\"},\"v\":[{\"reg\":\"USA\",\"rep\":0,\"i\":1659,\"a\":1458,\"mp\":159}],\"ver\":\"1.0.0\",\"nam\":{\"fnt\":\"LilleyAIRA\",\"gnt\":\"TalithaAIRA M\"},\"v\":[{\"reg\":\"USA\",\"rep\":0,\"i\":1659,\"a\":1458,\"mp\":159}],\"dob\":\"2021-08-31\"}\n";
 
     public static final String IPS_SAMPLE_R4_IIS = "{\n" +
             "  \"resourceType\": \"Bundle\",\n" +
