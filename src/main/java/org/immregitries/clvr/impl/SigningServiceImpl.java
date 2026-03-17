@@ -31,7 +31,7 @@ public class SigningServiceImpl implements SigningService {
 
 
     @Override
-    public byte[] createCoseSign1(byte[] cborPayload, KeyPair keyPair) throws IOException, COSEException {
+    public byte[] createCoseSign1(byte[] cborPayload, KeyPair keyPair, String kid) throws IOException, COSEException {
         ECPrivateKey priKey = (ECPrivateKey) keyPair.getPrivate();
 
         // Create a signer with the private key.
@@ -105,6 +105,7 @@ public class SigningServiceImpl implements SigningService {
     }
 
 
+    @Deprecated
     public byte[] createCoseSign1Old(KeyPair keyPair, byte[] cborPayload) throws IOException, InvalidKeyException, SignatureException, NoSuchAlgorithmException, NoSuchProviderException {
         PrivateKey privateKey = keyPair.getPrivate();
 

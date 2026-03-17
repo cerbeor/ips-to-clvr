@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 
-import static org.immregitries.clvr.mapping.FhirSystems.*;
-
 
 class FhirConversionUtilTest extends BaseCLVRTest {
 
@@ -56,7 +54,7 @@ class FhirConversionUtilTest extends BaseCLVRTest {
         Bundle bundle = fhirContextR4.newJsonParser().parseResource(Bundle.class, ipsSample);
         CLVRPayload clvrPayloadFromBundle = fhirConversionUtilR4.toCLVRPayloadFromBundle(bundle);
         Assertions.assertNotNull(clvrPayloadFromBundle);
-        String qr = clvrService.encodeCLVRtoQrCode(new CLVRToken(clvrPayloadFromBundle, "Test"), testKeyPairManager.getOrCreateKeyPair(TEST_KEY_FILE_NAME));
+        String qr = clvrService.encodeCLVRtoQrCode(new CLVRToken(clvrPayloadFromBundle, "Test"), testKeyPairManager.getOrCreateKeyPair(TEST_KEY_FILE_NAME), TestKeyPairManager.DEFAULT_KID);
 //        logger.info(clvrPayloadFromBundle.toString());
         Assertions.assertNotNull(qr);
     }

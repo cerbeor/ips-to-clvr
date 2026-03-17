@@ -17,6 +17,8 @@ public class TestKeyPairManager {
 
     public Path folder;
 
+    protected static final String DEFAULT_KID = "150";
+
 
     private final String ALGORITHM = "EC";
     private final String CURVE_NAME = "secp256r1"; // A common EC curve

@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.security.*;
-import java.time.Instant;
 import java.util.zip.DataFormatException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -58,7 +57,7 @@ class QrCodeServiceTest extends BaseCLVRTest {
     void testQrCodeConsistence(CLVRPayload payload) throws Exception {
         byte[] cbor = cborService.toCbor(new CLVRToken(payload, TEST_ISSUER));
         KeyPair keyPair = testKeyPairManager.getOrCreateKeyPair(TEST_KEY_FILE_NAME);
-        byte[] coseSign1 = signingService.createCoseSign1(cbor, keyPair);
+        byte[] coseSign1 = signingService.createCoseSign1(cbor, keyPair, TestKeyPairManager.DEFAULT_KID);
         byte[] deflated = CompressionUtil.deflate(coseSign1, NOWRAP);
         testQrCodeConsistence(deflated);
     }

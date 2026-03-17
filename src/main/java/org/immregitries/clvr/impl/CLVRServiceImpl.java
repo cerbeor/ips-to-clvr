@@ -24,9 +24,9 @@ public class CLVRServiceImpl implements CLVRService {
     }
 
     @Override
-    public String encodeCLVRtoQrCode(CLVRToken clvrToken, KeyPair keyPair) throws IOException, COSEException, SignatureException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException {
+    public String encodeCLVRtoQrCode(CLVRToken clvrToken, KeyPair keyPair, String kid) throws IOException, COSEException, SignatureException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException {
         byte[] cborPayload = cborService.toCbor(clvrToken);
-        byte[] cosePayload = signingService.createCoseSign1(cborPayload, keyPair);
+        byte[] cosePayload = signingService.createCoseSign1(cborPayload, keyPair, kid);
         byte[] deflated = CompressionUtil.deflate(cosePayload, NOWRAP);
         return qrCodeService.encodeQrCode(deflated);
     }

@@ -41,7 +41,7 @@ class SigningServiceTest extends BaseCLVRTest {
     void testSigningConsistence(byte[] cbor) {
         try {
             KeyPair keyPair = testKeyPairManager.getOrCreateKeyPair(TEST_KEY_FILE_NAME);
-            byte[] coseSign1 = signingService.createCoseSign1(cbor, keyPair);
+            byte[] coseSign1 = signingService.createCoseSign1(cbor, keyPair, TestKeyPairManager.DEFAULT_KID);
             byte[] cborUndone = signingService.cborFromCoseSign1(coseSign1, keyPair.getPublic());
             String s1 = new String(cbor);
             String s2 = new String(cborUndone);

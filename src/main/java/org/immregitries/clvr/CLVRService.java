@@ -10,7 +10,7 @@ import java.util.zip.DataFormatException;
 public interface CLVRService {
     boolean NOWRAP = false;
 
-    String encodeCLVRtoQrCode(CLVRToken clvrToken, KeyPair keyPair) throws IOException, COSEException, SignatureException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException;
+    String encodeCLVRtoQrCode(CLVRToken clvrToken, KeyPair keyPair, String kid) throws IOException, COSEException, SignatureException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException;
 
     CLVRToken decodeFullQrCode(byte[] qrcode, KeyPair keyPair) throws DataFormatException, IOException, COSEException;
     CLVRToken decodeFullQrCode(byte[] qrcode, PublicKey aPublic) throws DataFormatException, IOException, COSEException;

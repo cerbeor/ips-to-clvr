@@ -75,6 +75,7 @@ public class TestUi extends JFrame {
     private JTextField issuerField = new JTextField(5);
 
     private KeyPair keyPair;
+    private String kid;
     private JLabel qrCodeImage =  new JLabel(new ImageIcon());
 
     public TestUi() throws IOException{
@@ -180,7 +181,8 @@ public class TestUi extends JFrame {
             try {
                 keyErrorArea.setText(""); // Clear old errors
                 keyPair = parseKeyPair();
-                handleSuccess("Successfully loaded key Pair", keyErrorArea);
+                kid = parseKid();
+                handleSuccess("Successfully loaded key with id " + kid, keyErrorArea);
             } catch (Exception ex) {
                 handleError(ex, keyErrorArea, "Key pair could not be loaded");
             }
@@ -198,6 +200,7 @@ public class TestUi extends JFrame {
                         .keyUse(KeyUse.SIGNATURE)
                         .generate();
                 keyPair = jwk.toECKey().toKeyPair();
+                kid = jwk.toECKey().getKeyID();
                 keyTextArea.setText(prettyPrintJson(jwk.toJSONString()));
             } catch (Exception ex) {
                 keyErrorArea.setForeground(Color.RED);
@@ -359,7 +362,7 @@ public class TestUi extends JFrame {
         genQrButton.addActionListener(e -> {
             try {
                 CLVRToken clvrToken = parseClvrToken();
-                qrTextArea.setText(clvrService.encodeCLVRtoQrCode(clvrToken, keyPair));
+                qrTextArea.setText(clvrService.encodeCLVRtoQrCode(clvrToken, keyPair, kid));
                 updateQrCode();
                 handleSuccess("Generated QR Code", clvrErrorArea);
             } catch (Exception ex) {
@@ -588,6 +591,10 @@ public class TestUi extends JFrame {
         JsonElement el = JsonParser.parseString(jsonString);
         // Use toString(int indentFactor) to format with 4 spaces
         return gson.toJson(el);
+    }
+
+    private String parseKid() throws ParseException, JOSEException {
+        return JWK.parse(keyTextArea.getText()).getKeyID();
     }
 
     private KeyPair parseKeyPair() throws ParseException, JOSEException {
