@@ -183,7 +183,7 @@ public class TestUi extends JFrame {
                 keyPair = parseKeyPair();
                 kid = parseKid();
                 publicKeyMap.put(kid, keyPair.getPublic());
-                handleSuccess("Successfully loaded and stored key with id " + kid, keyErrorArea);
+                handleSuccess("Key stored and ready to use", keyErrorArea);
             } catch (Exception ex) {
                 handleError(ex, keyErrorArea, "Key pair could not be loaded");
             }
@@ -364,10 +364,12 @@ public class TestUi extends JFrame {
         // Buttons Row
         JPanel buttonPanel = new JPanel(new WrapLayout(FlowLayout.CENTER, 10, 10));
         JButton qrToTokenButton = qrToTokenButton(statusLabel);
+        JButton checkSignatureButton = checkSignatureButton(statusLabel);
         JButton printQrButton = printQrButton(statusLabel);
         JButton printPdfButton = printPdfButton(statusLabel);
         JButton exportPdfButton = exportPdfButton(statusLabel);
         buttonPanel.add(qrToTokenButton, gbc);
+        buttonPanel.add(checkSignatureButton, gbc);
         buttonPanel.add(printQrButton, gbc);
         buttonPanel.add(printPdfButton, gbc);
         buttonPanel.add(exportPdfButton, gbc);
@@ -469,9 +471,28 @@ public class TestUi extends JFrame {
         JButton qrToTokenButton = new JButton("<< Parse CLVR Token");
         qrToTokenButton.addActionListener(e -> {
             try {
-                CLVRToken clvrToken = clvrService.decodeFullQrCode(qrTextArea.getText().trim().getBytes(), keyPair);
+                CLVRToken clvrToken = clvrService.decodeFullQrCodeUnsafe(qrTextArea.getText().trim().getBytes());
                 clvrTokenArea.setText(clvrToken.toPrettyString());
             } catch (Exception ex) {
+                handleError(ex, statusLabel, null);
+            }
+        });
+        return qrToTokenButton;
+    }
+
+    private @NonNull JButton checkSignatureButton(JLabel statusLabel) {
+        JButton qrToTokenButton = new JButton("Check Signature");
+        qrToTokenButton.addActionListener(e -> {
+            try {
+                byte[] bytes = qrTextArea.getText().trim().getBytes();
+                CLVRToken clvrToken = clvrService.decodeFullQrCode(bytes, publicKeyMap);
+                JLabel label = new JLabel("Signature validated by one of the keys stored");
+                JOptionPane.showMessageDialog(this, label, "Signature check", JOptionPane.PLAIN_MESSAGE);
+            } catch (Exception ex) {
+                JLabel label = new JLabel("Verification failed, error: " + ex.getMessage());
+
+                JOptionPane.showMessageDialog(this, label, "Signature check", JOptionPane.PLAIN_MESSAGE);
+
                 handleError(ex, statusLabel, null);
             }
         });

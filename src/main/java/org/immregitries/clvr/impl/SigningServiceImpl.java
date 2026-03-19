@@ -114,7 +114,7 @@ public class SigningServiceImpl implements SigningService {
                 COSEVerifier coseVerifier = new COSEVerifier(publicKey);
                 coseVerifier.verify(coseSign1, null);
             } else {
-                throw new COSEException("Public key is empty");
+                throw new COSEException("No matching public key not found");
             }
         }
 

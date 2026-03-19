@@ -5,6 +5,7 @@ import org.immregitries.clvr.model.CLVRToken;
 
 import java.io.IOException;
 import java.security.*;
+import java.util.Map;
 import java.util.zip.DataFormatException;
 
 public interface CLVRService {
@@ -12,6 +13,7 @@ public interface CLVRService {
 
     String encodeCLVRtoQrCode(CLVRToken clvrToken, KeyPair keyPair, String kid) throws IOException, COSEException, SignatureException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException;
 
+    CLVRToken decodeFullQrCode(byte[] qrcode, Map<String, PublicKey> publicKeys) throws DataFormatException, IOException, COSEException;
     CLVRToken decodeFullQrCode(byte[] qrcode, KeyPair keyPair) throws DataFormatException, IOException, COSEException;
     CLVRToken decodeFullQrCode(byte[] qrcode, PublicKey aPublic) throws DataFormatException, IOException, COSEException;
     CLVRToken decodeFullQrCodeUnsafe(byte[] qrcode) throws DataFormatException, IOException, COSEException;

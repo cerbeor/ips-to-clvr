@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.security.*;
+import java.util.Map;
 import java.util.zip.DataFormatException;
 
 public class CLVRServiceImpl implements CLVRService {
@@ -39,6 +40,14 @@ public class CLVRServiceImpl implements CLVRService {
             aPublic = keyPair.getPublic();
         }
         return decodeFullQrCode(qrcode, aPublic);
+    }
+
+    public CLVRToken decodeFullQrCode(byte[] qrcode, Map<String, PublicKey> publicKeys) throws DataFormatException, IOException, COSEException {
+        byte[] compressed = qrCodeService.decodeQrCode(qrcode);
+        byte[] cose = CompressionUtil.inflate(compressed, NOWRAP);
+        byte[] cbor = signingService.cborFromCoseSign1(cose, publicKeys, false);
+        CLVRToken clvrToken = cborService.undoCbor(cbor);
+        return clvrToken;
     }
 
     public CLVRToken decodeFullQrCode(byte[] qrcode, PublicKey aPublic) throws DataFormatException, IOException, COSEException {
