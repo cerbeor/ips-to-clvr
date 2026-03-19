@@ -42,7 +42,7 @@ class SigningServiceTest extends BaseCLVRTest {
         try {
             KeyPair keyPair = testKeyPairManager.getOrCreateKeyPair(TEST_KEY_FILE_NAME);
             byte[] coseSign1 = signingService.createCoseSign1(cbor, keyPair, TestKeyPairManager.DEFAULT_KID);
-            byte[] cborUndone = signingService.cborFromCoseSign1(coseSign1, keyPair.getPublic());
+            byte[] cborUndone = signingService.cborFromCoseSign1(coseSign1, keyPair.getPublic(), null, false);
             String s1 = new String(cbor);
             String s2 = new String(cborUndone);
 //            logger.info("Test CoseSign1 lengths: {} - {} \n{} \n{} \n{} \n{}",cbor.length,cborUndone.length, s1, s2, cbor, cborUndone);

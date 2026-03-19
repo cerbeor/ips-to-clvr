@@ -14,6 +14,6 @@ public interface CLVRService {
 
     CLVRToken decodeFullQrCode(byte[] qrcode, KeyPair keyPair) throws DataFormatException, IOException, COSEException;
     CLVRToken decodeFullQrCode(byte[] qrcode, PublicKey aPublic) throws DataFormatException, IOException, COSEException;
-    CLVRToken decodeFullQrCode(byte[] qrcode) throws DataFormatException, IOException, COSEException;
+    CLVRToken decodeFullQrCodeUnsafe(byte[] qrcode) throws DataFormatException, IOException, COSEException;
 
 }

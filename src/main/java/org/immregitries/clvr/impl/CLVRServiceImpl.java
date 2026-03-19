@@ -44,15 +44,15 @@ public class CLVRServiceImpl implements CLVRService {
     public CLVRToken decodeFullQrCode(byte[] qrcode, PublicKey aPublic) throws DataFormatException, IOException, COSEException {
         byte[] compressed = qrCodeService.decodeQrCode(qrcode);
         byte[] cose = CompressionUtil.inflate(compressed, NOWRAP);
-        byte[] cbor = signingService.cborFromCoseSign1(cose, aPublic);
+        byte[] cbor = signingService.cborFromCoseSign1(cose, aPublic, false);
         CLVRToken clvrToken = cborService.undoCbor(cbor);
         return clvrToken;
     }
 
-    public CLVRToken decodeFullQrCode(byte[] qrcode) throws DataFormatException, IOException, COSEException {
+    public CLVRToken decodeFullQrCodeUnsafe(byte[] qrcode) throws DataFormatException, IOException, COSEException {
         byte[] compressed = qrCodeService.decodeQrCode(qrcode);
         byte[] cose = CompressionUtil.inflate(compressed, NOWRAP);
-        byte[] cbor = signingService.cborFromCoseSign1(cose, null);
+        byte[] cbor = signingService.cborFromCoseSign1Unverified(cose);
         CLVRToken clvrToken = cborService.undoCbor(cbor);
         return clvrToken;
     }

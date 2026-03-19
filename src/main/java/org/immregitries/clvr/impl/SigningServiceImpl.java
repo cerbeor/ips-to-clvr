@@ -17,6 +17,7 @@ import java.security.*;
 import java.security.interfaces.ECPrivateKey;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 
 public class SigningServiceImpl implements SigningService {
 
@@ -46,7 +47,7 @@ public class SigningServiceImpl implements SigningService {
 
         // Unprotected header
         COSEUnprotectedHeader unprotectedHeader =
-                new COSEUnprotectedHeaderBuilder().kid("11").build();
+                new COSEUnprotectedHeaderBuilder().kid(kid).build();
 
         // Sig_structure
         SigStructure structure = new SigStructureBuilder()
@@ -67,8 +68,20 @@ public class SigningServiceImpl implements SigningService {
         return encode;
     }
 
+    public byte[] cborFromCoseSign1Unverified(byte[] encode) throws IOException, COSEException {
+        return cborFromCoseSign1(encode,null, null, true);
+    }
+
+    public byte[] cborFromCoseSign1(byte[] encode, Map<String, PublicKey> publicKeyMap, boolean noVerify) throws IOException, COSEException {
+        return cborFromCoseSign1(encode,null, publicKeyMap, noVerify);
+    }
+
+    public byte[] cborFromCoseSign1(byte[] encode, PublicKey publicKey, boolean noVerify) throws IOException, COSEException {
+        return cborFromCoseSign1(encode, publicKey, null, noVerify);
+    }
+
     @Override
-    public byte[] cborFromCoseSign1(byte[] encode, PublicKey publicKey) throws IOException, COSEException {
+    public byte[] cborFromCoseSign1(byte[] encode, PublicKey publicKey, Map<String, PublicKey> publicKeyMap, boolean noVerify) throws IOException, COSEException {
         /*
          * Decode
          */
@@ -79,22 +92,32 @@ public class SigningServiceImpl implements SigningService {
             CBORTaggedItem tagged = (CBORTaggedItem) item;
             coseSign1 = (COSESign1) tagged.getTagContent();
         } catch (ClassCastException classCastException) {
-            classCastException.printStackTrace();
             coseSign1 = COSESign1.build(item);
         }
 
         /*
          * Verify signature
          */
-        if (publicKey != null) {
-            COSEVerifier coseVerifier = new COSEVerifier(publicKey);
-            boolean verify = false;
-            try {
-                verify = coseVerifier.verify(coseSign1, null);
-            } catch (COSEException e) {
-                logger.error(e.getMessage());
+        if (!noVerify) {
+            if (publicKeyMap != null && !publicKeyMap.isEmpty()) {
+                // Trying to
+                COSEVerifier coseVerifier = new COSEVerifier((i, i1, bytes) -> {
+                    String kid = new String(bytes);
+                    PublicKey publicKey2 = publicKeyMap.get(kid);
+                    if (publicKey2 == null) {
+                        throw new COSEException("Public key not found for kid: " + kid);
+                    }
+                    return publicKey2;
+                });
+                coseVerifier.verify(coseSign1, null);
+            } else if (publicKey != null) {
+                COSEVerifier coseVerifier = new COSEVerifier(publicKey);
+                coseVerifier.verify(coseSign1, null);
+            } else {
+                throw new COSEException("Public key is empty");
             }
         }
+
 
         byte[] bytes = coseSign1.getPayload().encode();
         /*

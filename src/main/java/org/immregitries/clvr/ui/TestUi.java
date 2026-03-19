@@ -41,6 +41,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.*;
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class TestUi extends JFrame {
@@ -74,6 +76,7 @@ public class TestUi extends JFrame {
     private JTextField issuerField = new JTextField(5);
 
     private KeyPair keyPair;
+    private Map<String, PublicKey> publicKeyMap = new HashMap<>();
     private String kid;
     private JLabel qrCodeImage =  new JLabel(new ImageIcon());
 
@@ -179,7 +182,8 @@ public class TestUi extends JFrame {
                 keyErrorArea.setText(""); // Clear old errors
                 keyPair = parseKeyPair();
                 kid = parseKid();
-                handleSuccess("Successfully loaded key with id " + kid, keyErrorArea);
+                publicKeyMap.put(kid, keyPair.getPublic());
+                handleSuccess("Successfully loaded and stored key with id " + kid, keyErrorArea);
             } catch (Exception ex) {
                 handleError(ex, keyErrorArea, "Key pair could not be loaded");
             }
