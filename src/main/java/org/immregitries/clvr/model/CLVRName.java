@@ -8,10 +8,12 @@ import java.io.Serializable;
  * Nested class representing the "nam" structure.
  */
 public class CLVRName extends AbstractCLVRComponent implements Serializable {
-    @JsonProperty("fnt")
+    public static final String FNT = "fnt";
+    public static final String GNT = "gnt";
+    @JsonProperty(FNT)
     private String familyName;
 
-    @JsonProperty("gnt")
+    @JsonProperty(GNT)
     private String givenName;
 
     public String getFamilyName() {

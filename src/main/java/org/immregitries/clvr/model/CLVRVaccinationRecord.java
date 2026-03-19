@@ -8,19 +8,24 @@ import java.io.Serializable;
  * Nested class representing the vaccination record within the "v" array.
  */
 public class CLVRVaccinationRecord extends AbstractCLVRComponent implements Serializable {
-    @JsonProperty("reg")
+    public static final String REG = "reg";
+    public static final String REP = "rep";
+    public static final String I = "i";
+    public static final String MP = "mp";
+    public static final String A = "a";
+    @JsonProperty(REG)
     private String registryCode;
 
-    @JsonProperty("rep")
+    @JsonProperty(REP)
     private int repositoryIndex;
 
-    @JsonProperty("i")
+    @JsonProperty(I)
     private int reference;
 
-    @JsonProperty("a")
+    @JsonProperty(A)
     private int ageInDays;
 
-    @JsonProperty("mp")
+    @JsonProperty(MP)
     private int nuvaCode;
 
     public String getRegistryCode() {

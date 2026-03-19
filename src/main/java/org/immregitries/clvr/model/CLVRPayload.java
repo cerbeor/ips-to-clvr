@@ -15,11 +15,14 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CLVRPayload extends AbstractCLVRComponent implements Serializable {
     private static final String DOB = "dob";
+    public static final String V = "v";
+    public static final String NAM = "nam";
+    public static final String VER = "ver";
 
-    @JsonProperty("ver")
+    @JsonProperty(VER)
     private String version;
 
-    @JsonProperty("nam")
+    @JsonProperty(NAM)
     private CLVRName CLVRName;
 
     /*
@@ -36,7 +39,7 @@ public class CLVRPayload extends AbstractCLVRComponent implements Serializable {
     /// /	@JsonProperty("pid")
 //	private PersonIdentifier personIdentifier;
 
-    @JsonProperty("v")
+    @JsonProperty(V)
     private List<CLVRVaccinationRecord> CLVRVaccinationRecords;
 
     public String getVersion() {
@@ -47,12 +50,12 @@ public class CLVRPayload extends AbstractCLVRComponent implements Serializable {
         this.version = version;
     }
 
-    @JsonProperty("nam")
+    @JsonProperty(NAM)
     public CLVRName getCLVRName() {
         return CLVRName;
     }
 
-    @JsonProperty("nam")
+    @JsonProperty(NAM)
     public void setCLVRName(CLVRName CLVRName) {
         this.CLVRName = CLVRName;
     }
@@ -75,12 +78,12 @@ public class CLVRPayload extends AbstractCLVRComponent implements Serializable {
         this.dateOfBirth = dateOfBirth;
     }
 
-    @JsonProperty("v")
+    @JsonProperty(V)
     public List<CLVRVaccinationRecord> getCLVRVaccinationRecords() {
         return CLVRVaccinationRecords;
     }
 
-    @JsonProperty("v")
+    @JsonProperty(V)
     public void setCLVRVaccinationRecords(List<CLVRVaccinationRecord> CLVRVaccinationRecords) {
         this.CLVRVaccinationRecords = CLVRVaccinationRecords;
     }
@@ -88,4 +91,5 @@ public class CLVRPayload extends AbstractCLVRComponent implements Serializable {
     public static CLVRPayload fromString(String value) throws JsonProcessingException {
         return AbstractCLVRComponent.JACKSON_MAPPER.readValue(value, CLVRPayload.class);
     }
+
 }

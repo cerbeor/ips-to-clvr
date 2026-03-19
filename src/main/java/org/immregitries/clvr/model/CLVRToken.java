@@ -165,9 +165,8 @@ public class CLVRToken {
 
         // 3. Extract Payload (Usually a byte array or nested Map in CBOR)
         Object payloadVal = cborData.get(NumberUtils.toInt(PAYLOAD_KEY));
-        System.out.println("Payload val " + payloadVal);
         if (payloadVal instanceof String) {
-            clvrToken.setClvrPayload(AbstractCLVRComponent.JACKSON_MAPPER.readValue( payloadVal.toString(),CLVRPayload.class));
+            clvrToken.setClvrPayload(AbstractCLVRComponent.JACKSON_MAPPER.readValue(payloadVal.toString(),CLVRPayload.class));
         } else if (payloadVal instanceof Map) {
             clvrToken.setClvrPayload(AbstractCLVRComponent.JACKSON_MAPPER.convertValue(payloadVal,CLVRPayload.class));
         }
