@@ -454,14 +454,15 @@ public class TestUi extends JFrame {
         return genQrButton;
     }
 
-    private @NonNull JButton printQrButton(JLabel qrErrorArea) {
+    private @NonNull JButton printQrButton(JLabel statusLabel) {
         JButton printQrButton = new JButton("Show QR Code");
         printQrButton.addActionListener(e -> {
             try {
-                qrErrorArea.setText("");
+                statusLabel.setText("");
                 JOptionPane.showMessageDialog(this, qrCodeImage, "Generated Health QR Code", JOptionPane.PLAIN_MESSAGE);
+                handleSuccess("QR Code printed", statusLabel);
             } catch (Exception ex) {
-                handleError(ex, qrErrorArea, null);
+                handleError(ex, statusLabel, "QR Code not generated");
             }
         });
         return printQrButton;
@@ -473,6 +474,7 @@ public class TestUi extends JFrame {
             try {
                 CLVRToken clvrToken = clvrService.decodeFullQrCodeUnsafe(qrTextArea.getText().trim().getBytes());
                 clvrTokenArea.setText(clvrToken.toPrettyString());
+                handleSuccess("Parsed and Converted CLVR Token", statusLabel);
             } catch (Exception ex) {
                 handleError(ex, statusLabel, null);
             }
@@ -485,14 +487,13 @@ public class TestUi extends JFrame {
         qrToTokenButton.addActionListener(e -> {
             try {
                 byte[] bytes = qrTextArea.getText().trim().getBytes();
-                CLVRToken clvrToken = clvrService.decodeFullQrCode(bytes, publicKeyMap);
+                clvrService.decodeFullQrCode(bytes, publicKeyMap);
                 JLabel label = new JLabel("Signature validated by one of the keys stored");
                 JOptionPane.showMessageDialog(this, label, "Signature check", JOptionPane.PLAIN_MESSAGE);
+                handleSuccess("Signature checked", statusLabel);
             } catch (Exception ex) {
                 JLabel label = new JLabel("Verification failed, error: " + ex.getMessage());
-
                 JOptionPane.showMessageDialog(this, label, "Signature check", JOptionPane.PLAIN_MESSAGE);
-
                 handleError(ex, statusLabel, null);
             }
         });
