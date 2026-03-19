@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class BaseCLVRTest {
     public static final boolean NOWRAP = false;
 
+    // TODO find better QR sample
     public static final String TEST_SAMPLE_QR = "6BFOXN*TS0BI$ZDZRH AENUKSIL3W8 G2RTC RIQJDA+Q910OJL46KBG3:ZH-O9UVPQRHIY1VS1NQ1 WUXOE9Y431T3$KOGVV5U+%9SI6%RU/TUPRAAUIWVH$R1+ZE6%P/T1RM2JOJV 4G.K115WT0PG0QB00.I:S9M2JJHHIOI.CBPHNGG2M53%H2W58.0NW58:D9N/IR6H.14A$O.4VF679WCBKNK%O:OR.1UUHRKZ4N*1J4N.3V$/K166ZRLYKN% NL8SI01$UI*5GY14LUI.RNUWC01JZMQP-1K13J+6CBB/S1BCCLVA";
     public static final String TEST_ISSUER = "SYA";
     public static final String TEST_SAMPLE = "{\"ver\": \"1.0.0\", \"nam\": {\"fnt\": \"DOË\"," +

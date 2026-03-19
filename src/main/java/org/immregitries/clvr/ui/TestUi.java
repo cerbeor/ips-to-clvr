@@ -27,7 +27,6 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.immregitries.clvr.*;
 import org.immregitries.clvr.impl.*;
 import org.immregitries.clvr.mapping.FhirConversionUtilR4;
-import org.immregitries.clvr.model.AbstractCLVRComponent;
 import org.immregitries.clvr.model.CLVRPayload;
 import org.immregitries.clvr.model.CLVRToken;
 
@@ -104,9 +103,7 @@ public class TestUi extends JFrame {
         mainPanel = new JPanel(gridLayout);
 
         mainPanel.add(keyPanel());
-
         mainPanel.add(inputsPanel());
-//        mainPanel.add(fhirPanel());
         mainPanel.add(clvrPanel());
         mainPanel.add(qrPanel());
         add(mainPanel, BorderLayout.CENTER);
@@ -190,25 +187,6 @@ public class TestUi extends JFrame {
         return loadKeyPair;
     }
 
-    private @NonNull JButton generateKeyButton(JLabel keyErrorArea) {
-        JButton backward = new JButton("Example");
-        backward.addActionListener(e -> {
-            try {
-                keyErrorArea.setText(""); // Clear old errors
-                JWK jwk = new ECKeyGenerator(Curve.P_256)
-                        .keyID(UUID.randomUUID().toString())
-                        .keyUse(KeyUse.SIGNATURE)
-                        .generate();
-                keyPair = jwk.toECKey().toKeyPair();
-                kid = jwk.toECKey().getKeyID();
-                keyTextArea.setText(prettyPrintJson(jwk.toJSONString()));
-            } catch (Exception ex) {
-                keyErrorArea.setForeground(Color.RED);
-                handleError(ex, keyErrorArea, null);
-            }
-        });
-        return backward;
-    }
 
     public JPanel inputsPanel() {
         JLabel statusLabel = new JLabel("", SwingConstants.CENTER);
@@ -254,7 +232,7 @@ public class TestUi extends JFrame {
 
         // Buttons Row
         JPanel buttonPanel = new JPanel(new WrapLayout(FlowLayout.CENTER, 10, 10));
-        JButton btnExample = genGetFhirExampleButton(statusLabel);
+        JButton btnExample = fhirExampleButton(statusLabel);
         JButton btnConvert =  fhirForwardButton(statusLabel);
         buttonPanel.add(btnExample);
         buttonPanel.add(btnConvert);
@@ -273,36 +251,6 @@ public class TestUi extends JFrame {
         return panel;
     }
 
-    private @NonNull JButton genGetFhirExampleButton(JLabel statusLabel) {
-        JButton getExampleFhirBundle = new JButton("Example");
-        getExampleFhirBundle.addActionListener(e -> {
-            try {
-                issuerField.setText("SYA");
-                fhirBundleArea.setText(Samples.IPS_SAMPLE_R4_IIS);
-            } catch (Exception ex) {
-                handleError(ex, statusLabel, null);
-            }
-        });
-        return getExampleFhirBundle;
-    }
-
-    private @NonNull JButton fhirForwardButton(JLabel fhirErrorArea) {
-        JButton forward = new JButton("Convert FHIR Bundle >>");
-        forward.addActionListener(e -> {
-            try {
-                fhirErrorArea.setText("");
-                if (fhirBundleArea.getText().isEmpty()) throw new IllegalArgumentException("FHIR Bundle cannot be empty!");
-                Bundle fhirBundle = fhirContext.newJsonParser().setPrettyPrint(true).parseResource(Bundle.class, fhirBundleArea.getText());
-                CLVRPayload clvrPayloadFromBundle = fhirConversionUtilR4.toCLVRPayloadFromBundle(fhirBundle);
-                CLVRToken clvrToken = new CLVRToken(clvrPayloadFromBundle, issuerField.getText());
-                clvrTokenArea.setText(prettyPrintJson(clvrToken.toString()));
-                handleSuccess("Parsed and Converted FHIR Bundle", fhirErrorArea);
-            } catch (Exception ex) {
-                handleError(ex, fhirErrorArea, null);
-            }
-        });
-        return forward;
-    }
 
     private JPanel clvrPanel() {
         JLabel statusLabel = new JLabel("");
@@ -341,7 +289,7 @@ public class TestUi extends JFrame {
 
         // Buttons Row
         JPanel buttonPanel = new JPanel(new WrapLayout(FlowLayout.CENTER, 10, 10));
-        JButton genQrButton = getGenQrButton(statusLabel);
+        JButton genQrButton = signCompressButton(statusLabel);
         buttonPanel.add(genQrButton, gbc);
 
         // Status Label
@@ -355,21 +303,6 @@ public class TestUi extends JFrame {
 
         panel.add(southPanel, BorderLayout.SOUTH);
         return panel;
-    }
-
-    private @NonNull JButton getGenQrButton(JLabel clvrErrorArea) {
-        JButton genQrButton = new JButton("Sign and Compress >>");
-        genQrButton.addActionListener(e -> {
-            try {
-                CLVRToken clvrToken = parseClvrToken();
-                qrTextArea.setText(clvrService.encodeCLVRtoQrCode(clvrToken, keyPair, kid));
-                updateQrCode();
-                handleSuccess("Generated QR Code", clvrErrorArea);
-            } catch (Exception ex) {
-                handleError(ex, clvrErrorArea, null);
-            }
-        });
-        return genQrButton;
     }
 
     private JPanel qrPanel() {
@@ -418,11 +351,6 @@ public class TestUi extends JFrame {
         gbc.gridy = 2;
         gbc.weightx = 1.0;
         gbc.weighty = 0; // Give the textarea the extra vertical space
-//        formPanel.add(qrCodeImage);
-//        gbc.gridy = 3;
-//        gbc.weightx = 1.0;
-//        gbc.weighty = 1.0; // Give the textarea the extra vertical space
-
         panel.add(formPanel, BorderLayout.CENTER);
 
         // 3. Actions & Status (South)
@@ -431,9 +359,9 @@ public class TestUi extends JFrame {
 
         // Buttons Row
         JPanel buttonPanel = new JPanel(new WrapLayout(FlowLayout.CENTER, 10, 10));
-        JButton qrToTokenButton = getQrToTokenButton(statusLabel);
+        JButton qrToTokenButton = qrToTokenButton(statusLabel);
         JButton printQrButton = printQrButton(statusLabel);
-        JButton printPdfButton = getPrintPdfButton(statusLabel);
+        JButton printPdfButton = printPdfButton(statusLabel);
         JButton exportPdfButton = exportPdfButton(statusLabel);
         buttonPanel.add(qrToTokenButton, gbc);
         buttonPanel.add(printQrButton, gbc);
@@ -453,6 +381,73 @@ public class TestUi extends JFrame {
         return panel;
     }
 
+    private @NonNull JButton generateKeyButton(JLabel keyErrorArea) {
+        JButton backward = new JButton("Example");
+        backward.addActionListener(e -> {
+            try {
+                keyErrorArea.setText(""); // Clear old errors
+                JWK jwk = new ECKeyGenerator(Curve.P_256)
+                        .keyID(UUID.randomUUID().toString())
+                        .keyUse(KeyUse.SIGNATURE)
+                        .generate();
+                keyPair = jwk.toECKey().toKeyPair();
+                kid = jwk.toECKey().getKeyID();
+                keyTextArea.setText(prettyPrintJson(jwk.toJSONString()));
+            } catch (Exception ex) {
+                keyErrorArea.setForeground(Color.RED);
+                handleError(ex, keyErrorArea, null);
+            }
+        });
+        return backward;
+    }
+
+    private @NonNull JButton fhirExampleButton(JLabel statusLabel) {
+        JButton getExampleFhirBundle = new JButton("Example");
+        getExampleFhirBundle.addActionListener(e -> {
+            try {
+                issuerField.setText("SYA");
+                fhirBundleArea.setText(Samples.IPS_SAMPLE_R4_IIS);
+            } catch (Exception ex) {
+                handleError(ex, statusLabel, null);
+            }
+        });
+        return getExampleFhirBundle;
+    }
+
+    private @NonNull JButton fhirForwardButton(JLabel fhirErrorArea) {
+        JButton forward = new JButton("Convert FHIR Bundle >>");
+        forward.addActionListener(e -> {
+            try {
+                fhirErrorArea.setText("");
+                if (fhirBundleArea.getText().isEmpty()) throw new IllegalArgumentException("FHIR Bundle cannot be empty!");
+                Bundle fhirBundle = fhirContext.newJsonParser().setPrettyPrint(true).parseResource(Bundle.class, fhirBundleArea.getText().trim());
+                CLVRPayload clvrPayloadFromBundle = fhirConversionUtilR4.toCLVRPayloadFromBundle(fhirBundle);
+                CLVRToken clvrToken = new CLVRToken(clvrPayloadFromBundle, issuerField.getText().trim());
+                clvrTokenArea.setText(clvrToken.toPrettyString());
+                handleSuccess("Parsed and Converted FHIR Bundle", fhirErrorArea);
+            } catch (Exception ex) {
+                handleError(ex, fhirErrorArea, null);
+            }
+        });
+        return forward;
+    }
+
+
+    private @NonNull JButton signCompressButton(JLabel clvrErrorArea) {
+        JButton genQrButton = new JButton("Sign and Compress >>");
+        genQrButton.addActionListener(e -> {
+            try {
+                CLVRToken clvrToken = parseClvrToken();
+                qrTextArea.setText(clvrToken.toPrettyString() + "\n" + clvrService.encodeCLVRtoQrCode(clvrToken, keyPair, kid));
+                updateQrCode();
+                handleSuccess("Generated QR Code", clvrErrorArea);
+            } catch (Exception ex) {
+                handleError(ex, clvrErrorArea, null);
+            }
+        });
+        return genQrButton;
+    }
+
     private @NonNull JButton printQrButton(JLabel qrErrorArea) {
         JButton printQrButton = new JButton("Show QR Code");
         printQrButton.addActionListener(e -> {
@@ -466,12 +461,12 @@ public class TestUi extends JFrame {
         return printQrButton;
     }
 
-    private @NonNull JButton getQrToTokenButton(JLabel statusLabel) {
+    private @NonNull JButton qrToTokenButton(JLabel statusLabel) {
         JButton qrToTokenButton = new JButton("<< Parse CLVR Token");
         qrToTokenButton.addActionListener(e -> {
             try {
-                String clvrTokenString = clvrService.decodeFullQrCode(qrTextArea.getText().getBytes(), keyPair).toString();
-                clvrTokenArea.setText(prettyPrintJson(clvrTokenString));
+                CLVRToken clvrToken = clvrService.decodeFullQrCode(qrTextArea.getText().trim().getBytes(), keyPair);
+                clvrTokenArea.setText(clvrToken.toPrettyString());
             } catch (Exception ex) {
                 handleError(ex, statusLabel, null);
             }
@@ -479,12 +474,12 @@ public class TestUi extends JFrame {
         return qrToTokenButton;
     }
 
-    private @NonNull JButton getPrintPdfButton(JLabel errorArea) {
+    private @NonNull JButton printPdfButton(JLabel errorArea) {
         JButton printPdfButton = new JButton("Show PDF");
         printPdfButton.addActionListener(e -> {
             try {
                 errorArea.setText("");
-                PDDocument pdDocument = clvrPdfService.createPdf(parseClvrToken(), qrTextArea.getText().getBytes(), "Test-window");
+                PDDocument pdDocument = clvrPdfService.createPdf(parseClvrToken(), qrTextArea.getText().trim().getBytes(), "Test-window");
                 PDFRenderer pdfRenderer = new PDFRenderer(pdDocument);
                 BufferedImage image = pdfRenderer.renderImageWithDPI(0, 75, ImageType.RGB);
 
@@ -507,8 +502,6 @@ public class TestUi extends JFrame {
 
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-//                fileChooser.setFileFilter(new FileNameExtensionFilter("Pdf Files", ".pdf"));
-//                fileChooser.setFileFilter(new DirectoryFilter);
                 // Optional: set the initial directory
                 fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
 
@@ -531,7 +524,7 @@ public class TestUi extends JFrame {
                     // Do something with the file path, e.g., display it in a dialog or a JTextField
                     JOptionPane.showMessageDialog(this, "Pdf exported to: " + newFile.getAbsolutePath(), "Export PDF", JOptionPane.PLAIN_MESSAGE);
                     // Example of setting the path to a JTextField (assuming 'textField' exists)
-                    PDDocument pdDocument = clvrPdfService.createPdf(parseClvrToken(), qrTextArea.getText().getBytes(), "Test-window");
+                    PDDocument pdDocument = clvrPdfService.createPdf(parseClvrToken(), qrTextArea.getText().trim().getBytes(), "Test-window");
                     pdDocument.save(newFile);
                     handleSuccess("Exported PDF", errorArea);
                 } else {
@@ -546,12 +539,12 @@ public class TestUi extends JFrame {
     }
 
     private void updateQrCode() throws WriterException {
-        String text = qrTextArea.getText();
+        String text = qrTextArea.getText().trim();
         if (StringUtils.isBlank(text)) {
             return;
         } else {
             BitMatrix matrix = new MultiFormatWriter().encode(
-                    qrTextArea.getText(),
+                    qrTextArea.getText().trim(),
                     BarcodeFormat.QR_CODE,
                     300, 300
             );
@@ -568,8 +561,9 @@ public class TestUi extends JFrame {
     private void handleException(Exception e) {
         globalErrorArea.setForeground(Color.RED);
         StringWriter sw = new StringWriter();
+        e.printStackTrace();
         e.printStackTrace(new PrintWriter(sw));
-        globalErrorArea.setText("⚠️ LATEST ERROR:\n" + sw.toString());
+        globalErrorArea.setText("⚠️ LATEST ERROR:\n" + sw);
     }
 
     private void handleSuccess(String message, JLabel errorArea) {
@@ -587,26 +581,24 @@ public class TestUi extends JFrame {
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     private String prettyPrintJson(String jsonString) {
-        // Create a JSONObject from the string
         JsonElement el = JsonParser.parseString(jsonString);
-        // Use toString(int indentFactor) to format with 4 spaces
         return gson.toJson(el);
     }
 
     private String parseKid() throws ParseException, JOSEException {
-        return JWK.parse(keyTextArea.getText()).getKeyID();
+        return JWK.parse(keyTextArea.getText().trim()).getKeyID();
     }
 
     private KeyPair parseKeyPair() throws ParseException, JOSEException {
         try {
-            return JWK.parse(keyTextArea.getText()).toRSAKey().toKeyPair();
+            return JWK.parse(keyTextArea.getText().trim()).toRSAKey().toKeyPair();
         } catch (ClassCastException classCastException) {
-            return JWK.parse(keyTextArea.getText()).toECKey().toKeyPair();
+            return JWK.parse(keyTextArea.getText().trim()).toECKey().toKeyPair();
         }
     }
 
     private CLVRToken parseClvrToken() throws JsonProcessingException {
-        return AbstractCLVRComponent.OBJECT_MAPPER.readValue(clvrTokenArea.getText().strip(), CLVRToken.class);
+        return CLVRToken.fromString(clvrTokenArea.getText().trim());
     }
 
     public static void main(String[] args) {

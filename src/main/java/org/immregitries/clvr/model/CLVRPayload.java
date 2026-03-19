@@ -84,5 +84,7 @@ public class CLVRPayload extends AbstractCLVRComponent implements Serializable {
         this.CLVRVaccinationRecords = CLVRVaccinationRecords;
     }
 
-
+    public String toPrettyString() {
+        return super.toString();
+    }
 }
