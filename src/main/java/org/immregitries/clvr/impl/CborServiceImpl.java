@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.DataFormatException;
 
@@ -32,7 +31,9 @@ public class CborServiceImpl implements CborService {
      */
     @Override
     public byte[] toCbor(CLVRToken clvrToken) throws IOException {
-        CBORPairList pairList = (CBORPairList)new CBORizer().cborizeMap(clvrToken.toCBORMap());
+        CBORizer cboRizer = new CBORizer();
+        Map<Integer, Object> cborMap = clvrToken.toCBORMap();
+        CBORPairList pairList = (CBORPairList) cboRizer.cborizeMap(cborMap);
         return  pairList.encode();
     }
 

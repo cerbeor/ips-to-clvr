@@ -1,9 +1,11 @@
 package org.immregitries.clvr.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.text.SimpleDateFormat;
+import java.util.Map;
 
 /**
  * Unifies Serialization of subclasses into string using the Jackson mappings, allowed when keys are String only
@@ -20,4 +22,11 @@ public abstract class AbstractCLVRComponent {
             return super.toString();
         }
     }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = JACKSON_MAPPER
+                .convertValue(this, new TypeReference<Map<String, Object>>() {});
+        return map;
+    }
+
 }

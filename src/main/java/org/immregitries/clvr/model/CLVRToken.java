@@ -102,7 +102,7 @@ public class CLVRToken {
         map.put(NumberUtils.toInt(ISSUER_KEY), issuer);
         map.put(NumberUtils.toInt(EXPIRATION_TIME_KEY), expirationTime);
         map.put(NumberUtils.toInt(ISSUED_TIME_KEY), issuedTime);
-        map.put(NumberUtils.toInt(PAYLOAD_KEY), clvrPayload);
+        map.put(NumberUtils.toInt(PAYLOAD_KEY), clvrPayload.toMap());
 
         return map;
     }
@@ -165,9 +165,7 @@ public class CLVRToken {
 
         // 3. Extract Payload (Usually a byte array or nested Map in CBOR)
         Object payloadVal = cborData.get(NumberUtils.toInt(PAYLOAD_KEY));
-        if (payloadVal instanceof String) {
-            clvrToken.setClvrPayload(AbstractCLVRComponent.JACKSON_MAPPER.readValue(payloadVal.toString(),CLVRPayload.class));
-        } else if (payloadVal instanceof Map) {
+        if (payloadVal instanceof Map) {
             clvrToken.setClvrPayload(AbstractCLVRComponent.JACKSON_MAPPER.convertValue(payloadVal,CLVRPayload.class));
         }
 
