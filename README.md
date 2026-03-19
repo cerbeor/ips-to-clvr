@@ -57,7 +57,7 @@ Project provides a simple testing UI using JFRAME, use maven `standalone` profil
 git clone https://github.com/cerbeor/ips-to-clvr
 cd ips-to-clvr
 mvn clean package -Pstandalone
-java -jar target/ips-to-clvr-1.0-SNAPSHOT.jar
+java -jar target/ips-to-clvr.jar
 ```
 
 ---

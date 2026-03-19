@@ -147,6 +147,7 @@
         <profile>
             <id>standalone</id>
             <build>
+                <finalName>ips-to-clvr</finalName>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
