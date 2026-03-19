@@ -114,7 +114,7 @@ public class CLVRToken {
     public String toPrettyString() {
         String clvrPayloadString = "";
         if (clvrPayload != null) {
-            clvrPayloadString = clvrPayload.toPrettyString();
+            clvrPayloadString = clvrPayload.toString();
         }
         return String.format("""
         {
@@ -176,16 +176,12 @@ public class CLVRToken {
     }
 
     public static CLVRToken fromString(String input) throws JsonProcessingException {
-        System.out.println("Input " + input);
         // 1. Clean the input (remove braces and extra whitespace)
         String clean = input.trim().replaceFirst("^\\{", "").replaceFirst("\\}$", "");
-        System.out.println("Clean Input " + input);
 
         // 2. Split by comma, but only commas followed by a "key:" pattern
         // This protects commas inside the payload string
-        String[] pairs = clean.split(",(?=-?\\d+:)");
-        System.out.println("Pairs " + String.join(",", pairs));
-
+        String[] pairs = clean.split("\\s*,\\s*(?=-?\\d+\\s*:)");
 
         CLVRToken token = new CLVRToken();
         for (String pair : pairs) {
@@ -196,13 +192,11 @@ public class CLVRToken {
             // Remove the wrapping double quotes from the value
             String value = parts[1].trim().replaceAll("^\"|\"$", "");
 
-            System.out.println("key: " + key + " value: " + value);
             switch (key) {
                 case ISSUER_KEY -> token.setIssuer(value);
                 case EXPIRATION_TIME_KEY -> token.setExpirationTime(Long.parseLong(value));
                 case ISSUED_TIME_KEY -> token.setIssuedTime(Long.parseLong(value));
-                case PAYLOAD_KEY -> token.setClvrPayload(AbstractCLVRComponent.JACKSON_MAPPER.readValue(value, CLVRPayload.class));
-
+                case PAYLOAD_KEY -> token.setClvrPayload(CLVRPayload.fromString(value));
             }
         }
         return token;

@@ -438,7 +438,7 @@ public class TestUi extends JFrame {
         genQrButton.addActionListener(e -> {
             try {
                 CLVRToken clvrToken = parseClvrToken();
-                qrTextArea.setText(clvrToken.toPrettyString() + "\n" + clvrService.encodeCLVRtoQrCode(clvrToken, keyPair, kid));
+                qrTextArea.setText(clvrService.encodeCLVRtoQrCode(clvrToken, keyPair, kid));
                 updateQrCode();
                 handleSuccess("Generated QR Code", clvrErrorArea);
             } catch (Exception ex) {

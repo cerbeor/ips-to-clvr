@@ -1,6 +1,7 @@
 package org.immregitries.clvr.model;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.Serializable;
 import java.text.ParseException;
@@ -84,7 +85,7 @@ public class CLVRPayload extends AbstractCLVRComponent implements Serializable {
         this.CLVRVaccinationRecords = CLVRVaccinationRecords;
     }
 
-    public String toPrettyString() {
-        return super.toString();
+    public static CLVRPayload fromString(String value) throws JsonProcessingException {
+        return AbstractCLVRComponent.JACKSON_MAPPER.readValue(value, CLVRPayload.class);
     }
 }
