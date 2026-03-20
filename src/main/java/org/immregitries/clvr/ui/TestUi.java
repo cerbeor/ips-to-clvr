@@ -47,6 +47,17 @@ import java.util.UUID;
 
 public class TestUi extends JFrame {
 
+
+    private static final String EXAMPLE_JWK = "{\n" +
+            "  \"kty\": \"EC\",\n" +
+            "  \"d\": \"k8mbFqMBPvRwNuZwPMASgZeVsdo64moTWp396XZL8NY\",\n" +
+            "  \"use\": \"sig\",\n" +
+            "  \"crv\": \"P-256\",\n" +
+            "  \"kid\": \"be6b28b8-f5a4-4543-a80a-bc764c619feb\",\n" +
+            "  \"x\": \"OdOP_Dx0ty9qmM9nq7kZmggWprTeOUtb2eCO7fqCvbY\",\n" +
+            "  \"y\": \"yyQNgpnaAKeRshZJ657tBqTIBvT4JCMa7WgCxuGZhZM\"\n" +
+            "}";
+
     private NUVAService nuvaService;
     private CLVRService clvrService;
     private SigningService signingService;
@@ -157,7 +168,7 @@ public class TestUi extends JFrame {
 
         // Buttons Row
         JPanel buttonPanel = new JPanel(new WrapLayout(FlowLayout.CENTER, 10, 10));
-        JButton backward = generateKeyButton(statusLabel);
+        JButton backward = exampleKeyButton(statusLabel);
         JButton loadKey = getLoadKeyPairButton(statusLabel);
         buttonPanel.add(backward);
         buttonPanel.add(loadKey);
@@ -387,18 +398,15 @@ public class TestUi extends JFrame {
         return panel;
     }
 
-    private @NonNull JButton generateKeyButton(JLabel keyErrorArea) {
+    private @NonNull JButton exampleKeyButton(JLabel keyErrorArea) {
         JButton backward = new JButton("Example");
         backward.addActionListener(e -> {
             try {
                 keyErrorArea.setText(""); // Clear old errors
-                JWK jwk = new ECKeyGenerator(Curve.P_256)
-                        .keyID(UUID.randomUUID().toString())
-                        .keyUse(KeyUse.SIGNATURE)
-                        .generate();
+                JWK jwk = JWK.parse(EXAMPLE_JWK);
                 keyPair = jwk.toECKey().toKeyPair();
                 kid = jwk.toECKey().getKeyID();
-                keyTextArea.setText(prettyPrintJson(jwk.toJSONString()));
+                keyTextArea.setText(EXAMPLE_JWK);
             } catch (Exception ex) {
                 keyErrorArea.setForeground(Color.RED);
                 handleError(ex, keyErrorArea, null);
@@ -472,7 +480,7 @@ public class TestUi extends JFrame {
         JButton qrToTokenButton = new JButton("<< Parse CLVR Token");
         qrToTokenButton.addActionListener(e -> {
             try {
-                CLVRToken clvrToken = clvrService.decodeFullQrCodeUnsafe(qrTextArea.getText().trim().getBytes());
+                CLVRToken clvrToken = clvrService.decodeFullQrCode(qrTextArea.getText().trim().getBytes(), publicKeyMap);
                 clvrTokenArea.setText(clvrToken.toPrettyString());
                 handleSuccess("Parsed and Converted CLVR Token", statusLabel);
             } catch (Exception ex) {
