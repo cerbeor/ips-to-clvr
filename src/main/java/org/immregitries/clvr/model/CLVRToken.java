@@ -11,8 +11,8 @@ import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CLVRToken {
-    // more than 30 days validity
-    public static final long DEFAULT_VALIDITY_TIME = 3000000L;
+    // Approximately 10 years validity  10L * 365L * 24L * 60L * 60L * 1000L
+    public static final long DEFAULT_VALIDITY_TIME = 315360000000L;
     public static final String ISSUER_KEY = "1";
     public static final String EXPIRATION_TIME_KEY = "4";
     public static final String ISSUED_TIME_KEY = "6";
