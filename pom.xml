@@ -26,7 +26,7 @@
         <dependency>
             <groupId>com.authlete</groupId>
             <artifactId>cbor</artifactId>
-            <version>1.21</version>
+            <version>1.22-SNAPSHOT-ESP256</version>
         </dependency>
 
         <dependency>

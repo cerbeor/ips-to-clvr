@@ -39,7 +39,7 @@ public class SigningServiceImpl implements SigningService {
         COSESigner signer = new COSESigner(priKey);
 
         // Signature algorithm
-        int algorithm = COSEAlgorithms.ES256;
+        int algorithm = COSEAlgorithms.ESP256;
 
         // Protected header
         COSEProtectedHeader protectedHeader =
@@ -55,7 +55,7 @@ public class SigningServiceImpl implements SigningService {
                 .bodyAttributes(protectedHeader)
                 .payload(cborPayload).build();
         // Sign the Sig_structure (= generate a signature).
-        byte[] signature = signer.sign(structure, COSEAlgorithms.ES256);
+        byte[] signature = signer.sign(structure, algorithm);
         COSESign1 sign1 = new COSESign1Builder()
                 .protectedHeader(protectedHeader)
                 .unprotectedHeader(unprotectedHeader)
