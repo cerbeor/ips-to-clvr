@@ -12,10 +12,8 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.KeyUse;
-import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.syadem.nuva.NUVA;
 import com.syadem.nuva.SupportedLocale;
 import org.apache.commons.lang3.StringUtils;
@@ -49,6 +47,7 @@ public class TestUi extends JFrame {
 
 
     private static final String EXAMPLE_JWK = "{\n" +
+            "  \"alg\": \"ESP256\",\n" +
             "  \"kty\": \"EC\",\n" +
             "  \"d\": \"k8mbFqMBPvRwNuZwPMASgZeVsdo64moTWp396XZL8NY\",\n" +
             "  \"use\": \"sig\",\n" +
@@ -625,9 +624,14 @@ public class TestUi extends JFrame {
 
     private KeyPair parseKeyPair() throws ParseException, JOSEException {
         try {
-            return JWK.parse(keyTextArea.getText().trim()).toRSAKey().toKeyPair();
+            JWK parse = JWK.parse(keyTextArea.getText().trim());
+            ECKey ecKey = parse.toECKey();
+            System.out.println(ecKey.toKeyPair().getPublic().getAlgorithm());
+            return ecKey.toKeyPair();
         } catch (ClassCastException classCastException) {
-            return JWK.parse(keyTextArea.getText().trim()).toECKey().toKeyPair();
+            throw new JOSEException("Wrong JWK type.");
+//            return JWK.parse(keyTextArea.getText().trim()).toRSAKey().toKeyPair();
+
         }
     }
 

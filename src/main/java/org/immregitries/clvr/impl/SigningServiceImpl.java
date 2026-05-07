@@ -6,6 +6,7 @@ import com.authlete.cbor.CBORTaggedItem;
 import com.authlete.cose.*;
 import com.authlete.cose.constants.COSEAlgorithms;
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.immregitries.clvr.SigningService;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import java.util.Map;
 
 public class SigningServiceImpl implements SigningService {
 
+    public static final String ESP_256_NAME = "ESP256";
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private CBORMapper cborMapper;
@@ -39,7 +41,13 @@ public class SigningServiceImpl implements SigningService {
         COSESigner signer = new COSESigner(priKey);
 
         // Signature algorithm
-        int algorithm = COSEAlgorithms.ESP256;
+        int algorithm;
+
+        if (StringUtils.equals(ESP_256_NAME, priKey.getAlgorithm())) {
+            algorithm = COSEAlgorithms.ESP256;
+        } else {
+            algorithm = COSEAlgorithms.ES256;
+        }
 
         // Protected header
         COSEProtectedHeader protectedHeader =
