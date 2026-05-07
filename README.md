@@ -5,6 +5,16 @@ A Java-based prototype for translating a **FHIR International Patient Summary (I
 This project is designed to be utilized as a dependency within the **AIRA NIST IIS Sandbox** environment to demonstrate the conversion and utilization of patient data from a standardized FHIR document into a compact, interoperable European format suitable for QR code deployment.
 
 ---
+## Dependencies
+
+A fork implementation of cbor is necessary to build this project.
+
+- Repository:```https://github.com/cerbeor/cbor```
+- Command:```mvn clean install -Dgpg.skip```
+
+In order to support the ESP256 naming bits
+
+---
 
 ## 🚀 Project Overview
 
